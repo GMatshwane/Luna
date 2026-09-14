@@ -26,7 +26,13 @@ struct TaskRowView: View {
                     Label(reminderAt.formatted(date: .omitted, time: .shortened), systemImage: "bell")
                         .font(.caption)
                         .foregroundStyle(LunaTheme.secondary)
-                } else if let notes = task.notes {
+                }
+
+                if let interval = RepeatPolicy.normalizedInterval(task.repeatIntervalDays) {
+                    Label(RepeatPolicy.summaryLabel(intervalDays: interval), systemImage: "repeat")
+                        .font(.caption)
+                        .foregroundStyle(LunaTheme.secondary)
+                } else if task.reminderAt == nil, let notes = task.notes {
                     Text(notes)
                         .font(.caption)
                         .foregroundStyle(LunaTheme.secondary)

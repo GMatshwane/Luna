@@ -14,6 +14,7 @@ APP_SWIFT = [
     "Theme/LunaTheme.swift",
     "Calendar/CalendarDay.swift",
     "Calendar/TaskListOrdering.swift",
+    "Calendar/RepeatPolicy.swift",
     "Notifications/ReminderPolicy.swift",
     "Notifications/NotificationScheduler.swift",
     "Models/TaskItem.swift",
@@ -32,6 +33,7 @@ TEST_SWIFT = [
     "CalendarDayTests.swift",
     "TaskListOrderingTests.swift",
     "ReminderPolicyTests.swift",
+    "RepeatPolicyTests.swift",
 ]
 
 
