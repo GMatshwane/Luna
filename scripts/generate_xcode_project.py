@@ -14,6 +14,9 @@ APP_SWIFT = [
     "Theme/LunaTheme.swift",
     "Calendar/CalendarDay.swift",
     "Calendar/TaskListOrdering.swift",
+    "Calendar/RepeatPolicy.swift",
+    "Scores/ScorePolicy.swift",
+    "Settings/LunaSettings.swift",
     "Notifications/ReminderPolicy.swift",
     "Notifications/NotificationScheduler.swift",
     "Models/TaskItem.swift",
@@ -27,11 +30,14 @@ APP_SWIFT = [
     "Views/EmptyDayView.swift",
     "Views/TaskEditorView.swift",
     "Views/SettingsView.swift",
+    "Views/ScoreCardView.swift",
 ]
 TEST_SWIFT = [
     "CalendarDayTests.swift",
     "TaskListOrderingTests.swift",
     "ReminderPolicyTests.swift",
+    "RepeatPolicyTests.swift",
+    "ScorePolicyTests.swift",
 ]
 
 
@@ -154,6 +160,8 @@ def pbxproj() -> str:
         "productsGroup": uid("productsGroup"),
         "themeGroup": uid("themeGroup"),
         "calendarGroup": uid("calendarGroup"),
+        "scoresGroup": uid("scoresGroup"),
+        "settingsGroup": uid("settingsGroup"),
         "notificationsGroup": uid("notificationsGroup"),
         "modelsGroup": uid("modelsGroup"),
         "persistenceGroup": uid("persistenceGroup"),
@@ -197,6 +205,8 @@ def pbxproj() -> str:
     grouped = {
         "Theme": [p for p in APP_SWIFT if p.startswith("Theme/")],
         "Calendar": [p for p in APP_SWIFT if p.startswith("Calendar/")],
+        "Scores": [p for p in APP_SWIFT if p.startswith("Scores/")],
+        "Settings": [p for p in APP_SWIFT if p.startswith("Settings/")],
         "Notifications": [p for p in APP_SWIFT if p.startswith("Notifications/")],
         "Models": [p for p in APP_SWIFT if p.startswith("Models/")],
         "Persistence": [p for p in APP_SWIFT if p.startswith("Persistence/")],
@@ -206,6 +216,8 @@ def pbxproj() -> str:
     group_id = {
         "Theme": ids["themeGroup"],
         "Calendar": ids["calendarGroup"],
+        "Scores": ids["scoresGroup"],
+        "Settings": ids["settingsGroup"],
         "Notifications": ids["notificationsGroup"],
         "Models": ids["modelsGroup"],
         "Persistence": ids["persistenceGroup"],

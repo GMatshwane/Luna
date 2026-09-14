@@ -15,6 +15,9 @@ struct TaskEditorView: View {
     @State private var dueDate: Date
     @State private var reminderEnabled: Bool
     @State private var reminderTime: Date
+    @State private var repeatEnabled: Bool
+    @State private var repeatDays: Int
+    @State private var points: Int
     @State private var showingDeleteConfirm = false
 
     init(task: TaskItem?, defaultDueDate: Date) {
@@ -25,6 +28,10 @@ struct TaskEditorView: View {
         _dueDate = State(initialValue: CalendarDay.startOfDay(task?.dueDate ?? defaultDueDate))
         _reminderEnabled = State(initialValue: task?.reminderAt != nil)
         _reminderTime = State(initialValue: task?.reminderAt ?? CalendarDay.combining(day: task?.dueDate ?? defaultDueDate, time: Self.defaultReminderTime))
+        let interval = RepeatPolicy.normalizedInterval(task?.repeatIntervalDays)
+        _repeatEnabled = State(initialValue: interval != nil)
+        _repeatDays = State(initialValue: interval ?? 1)
+        _points = State(initialValue: ScorePolicy.normalizedPoints(task?.points ?? ScorePolicy.defaultPoints))
     }
 
     private var canSave: Bool {
@@ -65,7 +72,17 @@ struct TaskEditorView: View {
                         .colorScheme(.dark)
                     }
 
+                    editorField(title: "Points") {
+                        Stepper(value: $points, in: ScorePolicy.minimumPoints...ScorePolicy.maximumPoints) {
+                            Text(points == 1 ? "1 point" : "\(points) points")
+                                .foregroundStyle(LunaTheme.highlight)
+                        }
+                        .accessibilityLabel(points == 1 ? "1 point" : "\(points) points")
+                    }
+
                     reminderSection
+
+                    repeatSection
 
                     if task != nil {
                         Button(role: .destructive) {
@@ -172,6 +189,36 @@ struct TaskEditorView: View {
         }
     }
 
+    private var repeatSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(isOn: $repeatEnabled) {
+                Text("Repeat")
+                    .foregroundStyle(LunaTheme.highlight)
+            }
+            .tint(LunaTheme.secondary)
+            .accessibilityHint("Repeat this task every N days after you complete it.")
+
+            if repeatEnabled {
+                Stepper(value: $repeatDays, in: RepeatPolicy.minimumIntervalDays...RepeatPolicy.maximumIntervalDays) {
+                    Text(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
+                        .foregroundStyle(LunaTheme.highlight)
+                }
+                .accessibilityLabel(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
+
+                Text("When you complete this task, Luna keeps it here and adds the next copy \(repeatDays == 1 ? "tomorrow" : "in \(repeatDays) days").")
+                    .font(.footnote)
+                    .foregroundStyle(LunaTheme.secondary)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(LunaTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(LunaTheme.border.opacity(0.45), lineWidth: 1)
+        }
+    }
+
     private func editorField<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
@@ -193,12 +240,15 @@ struct TaskEditorView: View {
 
     private func save() async {
         let reminderAt = reminderEnabled ? composedReminder : nil
+        let interval = repeatEnabled ? repeatDays : nil
         _ = await TaskService(context: modelContext, scheduler: scheduler).save(
             existing: task,
             title: title,
             notes: notes,
             dueDate: dueDate,
-            reminderAt: reminderAt
+            reminderAt: reminderAt,
+            repeatIntervalDays: interval,
+            points: points
         )
         dismiss()
     }

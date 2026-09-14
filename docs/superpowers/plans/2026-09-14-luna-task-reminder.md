@@ -13,7 +13,7 @@
 - Dark-only UI; colors only from `LunaTheme` (`#011C40`, `#023859`, `#26658C`, `#54ACBF`, `#A7EBF2`)
 - Model type name is `TaskItem` with the spec fields
 - `dueDate` always start-of-day local
-- No CloudKit, EventKit, widgets, Siri, recurrence, auto-roll, light mode
+- No CloudKit, EventKit, widgets, Siri, RRULE/monthly recurrence, auto-roll, light mode
 - Notification id `luna.task.<uuid>`; payload includes `taskID`
 - Request notification permission when the user first enables a reminder
 

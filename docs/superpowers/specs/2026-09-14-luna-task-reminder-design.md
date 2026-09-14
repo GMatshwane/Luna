@@ -18,6 +18,8 @@ v1 is single-device, local-only, dark-only.
 - Add, edit, complete, and delete tasks for today and any other calendar day.
 - Query and display tasks for a selected local calendar day.
 - Schedule and cancel per-task local notifications.
+- Optional **every N days** repeat (N ≥ 1) that spawns the next occurrence on complete.
+- Daily **Scores**: custom points per task, a daily point goal, and live progress on each day.
 - Dark UI using the Luna five-blue palette.
 
 ### Out of scope (v1)
@@ -25,7 +27,8 @@ v1 is single-device, local-only, dark-only.
 - Apple Reminders / EventKit / Calendar sync
 - CloudKit / iCloud / any network backend
 - Widgets, Siri, App Intents
-- Recurring tasks, priorities, folders, tags
+- Weekday-only / monthly / yearly / RRULE recurrence, priorities, folders, tags
+- Streaks, leaderboards, or cross-day score history
 - Light mode
 - Auto-rolling unfinished tasks to tomorrow
 - Third-party dependencies
@@ -48,6 +51,9 @@ ModelContainer   (authorize, schedule, cancel)
 | `LunaPersistence` | Builds the `ModelContainer` / store | SwiftData schema (`TaskItem`) |
 | `TaskItem` | Persisted task fields | SwiftData |
 | `CalendarDay` | Start-of-day, day range, combine day+time | Foundation `Calendar` |
+| `RepeatPolicy` | Every-N-days normalize, next due/reminder, spawn-on-complete | `CalendarDay` |
+| `ScorePolicy` | Point/goal normalization and day-score aggregation | Foundation |
+| `LunaSettings` | Persists `dailyPointGoal` in UserDefaults | `ScorePolicy` |
 | `ReminderPolicy` | Pure rules: should a reminder fire; notification id + payload | Foundation |
 | `NotificationScheduler` | Permission + schedule/cancel via UserNotifications | `ReminderPolicy` |
 | `TaskService` | Persist mutations, then sync notifications | `ModelContext`, `NotificationScheduler` |
@@ -76,6 +82,52 @@ SwiftData `@Model` class **`TaskItem`**:
 | `isCompleted` | `Bool` | Default `false` |
 | `createdAt` | `Date` | Set on insert |
 | `sortOrder` | `Int` | Tie-breaker after reminder time |
+| `repeatIntervalDays` | `Int?` | `nil` = does not repeat; otherwise N ≥ 1 calendar days |
+| `points` | `Int` | Default **1**, minimum 1 (clamped by `ScorePolicy`) |
+
+`RepeatPolicy.normalizedInterval` treats `nil`, 0, and negatives as “no repeat”, and clamps N into `1...365`.
+
+### Scores
+
+Each task has a custom point value (default 1). Completing a task earns those points toward the **selected day’s** score. Uncompleting subtracts them (the day score is always the live sum of `points` where `isCompleted == true` for that `dueDate`).
+
+Daily goal is app settings, not per-day:
+
+- Stored in `UserDefaults` as `luna.dailyPointGoal` via `LunaSettings`
+- Default **10**, minimum 1
+- The same goal applies to Today and every other browsed day
+
+```
+earned = sum(points of completed tasks on selected day)
+display = "earned / dailyPointGoal"   // overflow allowed, e.g. 12 / 10
+bar     = min(1, earned / dailyPointGoal)
+```
+
+Repeating tasks copy `points` onto the next occurrence, same as title and notes. No streaks in this version.
+
+### Repeats (every N days)
+
+Repeats are **optional per task**. Completing a repeating task does **not** move it; the completed copy stays on that day (muted + strikethrough). Luna then inserts a **new incomplete** `TaskItem` (new `id`) for the next occurrence.
+
+On complete (transition incomplete → completed), if `repeatIntervalDays` is N ≥ 1:
+
+```
+nextDue      = startOfDay(dueDate) + N calendar days
+nextReminder = reminderAt == nil ? nil : reminderAt + N calendar days
+```
+
+The next row copies `title`, `notes`, `points`, and `repeatIntervalDays`. `sortOrder` is the next value on that future day. `reminderAt` uses `Calendar.date(byAdding: .day)` so clock time is preserved across DST.
+
+Then:
+
+1. Cancel the completed occurrence’s notification (same as any complete).
+2. Schedule the new occurrence if its `reminderAt` is in the future and the task is incomplete.
+
+Editing `repeatIntervalDays` on an **incomplete** task only changes that instance; it is used the next time *that* instance is completed. Past completed copies are not rewritten.
+
+Non-repeating tasks (`repeatIntervalDays == nil`) are unchanged.
+
+Uncompleting a repeating task does not delete an already-spawned next occurrence. Completing the same instance again will not create a second next row if an incomplete copy with the same title, interval, and next due day already exists.
 
 ### Day query
 
@@ -115,6 +167,7 @@ One primary navigation stack. Today and the day browser share the same list UI; 
 ### 5.1 Today / day list (home)
 
 - Wordmark **LUNA** (serif) and a dated header.
+- Compact **score card**: `earned / goal` and a progress bar (`#A7EBF2` fill on `#023859` track). Empty day shows `0 / goal`. Updates live on complete/uncomplete.
 - If `selectedDate` is today: title **Today**, subtitle weekday + month day.
 - Otherwise: weekday title, full date subtitle (Yesterday / Tomorrow labels when applicable).
 - Toolbar: calendar (jump date), settings.
@@ -136,6 +189,8 @@ One primary navigation stack. Today and the day browser share the same list UI; 
 - Notes (optional, multiline)
 - Due date (date picker)
 - Reminder toggle; when on, hour-and-minute picker
+- Repeat toggle; when on, stepper for every N days (N ≥ 1)
+- Points stepper (default 1, minimum 1)
 - Save / Cancel
 - Delete (existing tasks only), with confirmation
 
@@ -145,6 +200,7 @@ Save is disabled while title is blank.
 
 ### 5.4 Settings (minimal sheet)
 
+- Editable **Daily goal** (points), default 10
 - Notification permission status (authorized / denied / not requested)
 - Open system Settings when denied
 - Short note that reminders are on-device only
@@ -181,7 +237,8 @@ Otherwise cancel and do not reschedule.
 | Event | Cancel prior | Reschedule if policy allows |
 |---|---|---|
 | Save (create or edit) | yes | yes |
-| Complete | yes | no (completed) |
+| Complete (non-repeating) | yes | no (completed) |
+| Complete (repeating) | yes on completed copy | yes on **new** next occurrence if its reminder is future |
 | Uncomplete | yes | yes if still future |
 | Delete | yes | no |
 | Due date change | yes | yes (new datetime) |
@@ -209,8 +266,12 @@ Completed rows: secondary color, reduced opacity, strikethrough title.
 ## 8. Behaviors (acceptance)
 
 - Completing cancels the notification; the item stays on that day until deleted.
+- Completing a repeating task also creates the next incomplete occurrence N local days later, with reminder shifted by the same offset and **points copied**.
+- Completing/uncompleting updates that day’s score (sum of completed task points).
+- Daily point goal is edited in Settings and shared across days.
 - No `reminderAt` → still listed, no alert.
 - Changing `dueDate` moves the task and reschedules.
+- Changing repeat interval on an incomplete task does not rewrite past completed copies.
 - Unfinished tasks do **not** auto-roll to tomorrow.
 - Empty day shows the prompt + add control.
 
@@ -224,6 +285,9 @@ Luna/
   Models/TaskItem.swift
   Calendar/CalendarDay.swift
   Calendar/TaskListOrdering.swift
+  Calendar/RepeatPolicy.swift
+  Scores/ScorePolicy.swift
+  Settings/LunaSettings.swift
   Notifications/ReminderPolicy.swift
   Notifications/NotificationScheduler.swift
   Services/TaskService.swift
@@ -236,11 +300,14 @@ Luna/
   Views/EmptyDayView.swift
   Views/TaskEditorView.swift
   Views/SettingsView.swift
+  Views/ScoreCardView.swift
   Assets.xcassets
 LunaTests/
   CalendarDayTests.swift
   TaskListOrderingTests.swift
   ReminderPolicyTests.swift
+  RepeatPolicyTests.swift
+  ScorePolicyTests.swift
 docs/superpowers/specs/2026-09-14-luna-task-reminder-design.md
 ```
 
@@ -254,6 +321,8 @@ XCTest (logic only; no UI tests in v1):
 - `CalendarDay` start-of-day, exclusive end, combine day+time
 - `TaskListOrdering` timed-before-untimed
 - `ReminderPolicy` skip nil / completed / past; schedule future incomplete; identifier + payload
+- `RepeatPolicy` N-day advance, reminder offset, spawn only on complete transition
+- `ScorePolicy` defaults (1 point, goal 10), completed-only sum, overflow label with capped bar
 
 On this cloud VM, Xcode/Simulator are unavailable. A `scripts/verify_luna_project.py` check asserts project references, required types/fields, palette hexes, and notification wiring so the tree stays consistent without `xcodebuild`.
 
@@ -266,3 +335,5 @@ Open `Luna.xcodeproj` on a Mac to build and run.
 3. Completed tasks keep sort position; they are not bucketed to the bottom.
 4. Permission is requested on first reminder enable, not at launch.
 5. No EventKit, no CloudKit, no third-party packages.
+6. Repeats are every-N-days only; next occurrence is created on complete, not at save.
+7. Day score is a live sum of completed task points; the daily goal is a single UserDefaults setting, not per-day history. No streaks.

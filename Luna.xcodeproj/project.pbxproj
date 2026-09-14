@@ -11,6 +11,9 @@
 		C0DFF619C805EBE4DBA53CD0 /* LunaTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E370C306A5C848B6B94E86F7 /* LunaTheme.swift */; };
 		5CB0341E8503A718F891F753 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA1B08239617F989CD0A316 /* CalendarDay.swift */; };
 		1667618D695750992A0FFA59 /* TaskListOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */; };
+		C55DD802D8C6B927E44681C4 /* RepeatPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C805304CAA0146C6EFE024D /* RepeatPolicy.swift */; };
+		D2DC01675114929046AB5A0E /* ScorePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E612A6F662532355CC1C8C /* ScorePolicy.swift */; };
+		6B7688B81DB9ACAE77057F4E /* LunaSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FCE041CCCF5554F132F7F1 /* LunaSettings.swift */; };
 		01A674A433C64074CF3DC7ED /* ReminderPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F6AF5F41A2F83AAC2F3612 /* ReminderPolicy.swift */; };
 		852FACBE8F27F08134290F33 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C308E13786465643F2126231 /* NotificationScheduler.swift */; };
 		511ECC66E41344919C3676B1 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70274C04AB99771AEF487C2 /* TaskItem.swift */; };
@@ -24,10 +27,13 @@
 		581C101BA4378A9B13D3F7DB /* EmptyDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */; };
 		6DF5165FC86F5FF7602B9FE8 /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */; };
 		0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A190201E6D76FCFD340ACF /* SettingsView.swift */; };
+		73663F7792191C6FB5F44444 /* ScoreCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3E5EB74FBE6DE5EA28E58A /* ScoreCardView.swift */; };
 		630079499D908838C6A12464 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32BB636196F91ED59D7A4919 /* Assets.xcassets */; };
 		8141273620ECF6AAB6E2B45C /* CalendarDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */; };
 		4CDB69FD629F653EAD105477 /* TaskListOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */; };
 		EB9598D410B559A932D46760 /* ReminderPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */; };
+		6A7773144600022CFCE3CB18 /* RepeatPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */; };
+		75D62EB88D59EEC4E582C528 /* ScorePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +54,9 @@
 		E370C306A5C848B6B94E86F7 /* LunaTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaTheme.swift; sourceTree = "<group>"; };
 		1AA1B08239617F989CD0A316 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
 		312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOrdering.swift; sourceTree = "<group>"; };
+		0C805304CAA0146C6EFE024D /* RepeatPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatPolicy.swift; sourceTree = "<group>"; };
+		57E612A6F662532355CC1C8C /* ScorePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePolicy.swift; sourceTree = "<group>"; };
+		A8FCE041CCCF5554F132F7F1 /* LunaSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaSettings.swift; sourceTree = "<group>"; };
 		A0F6AF5F41A2F83AAC2F3612 /* ReminderPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPolicy.swift; sourceTree = "<group>"; };
 		C308E13786465643F2126231 /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
 		C70274C04AB99771AEF487C2 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
@@ -61,9 +70,12 @@
 		5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDayView.swift; sourceTree = "<group>"; };
 		85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorView.swift; sourceTree = "<group>"; };
 		D8A190201E6D76FCFD340ACF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DE3E5EB74FBE6DE5EA28E58A /* ScoreCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardView.swift; sourceTree = "<group>"; };
 		4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayTests.swift; sourceTree = "<group>"; };
 		74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOrderingTests.swift; sourceTree = "<group>"; };
 		74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPolicyTests.swift; sourceTree = "<group>"; };
+		490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatPolicyTests.swift; sourceTree = "<group>"; };
+		2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePolicyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +111,8 @@
 				383256791198D3A40D08D461 /* LunaApp.swift */,
 				B4A7E86B2D6C42B1FF9B7F42 /* Theme */,
 				F4256091F834239CD49395FE /* Calendar */,
+				42973D4FE41925BD1E3DA48C /* Scores */,
+				07B5D8B29BF70F60E8A88E82 /* Settings */,
 				8F1ECFCF4C3E42A6DF04CA55 /* Notifications */,
 				E7651EE138212D3A5C27ABA0 /* Models */,
 				87CB5C3A4E6A69531EDF6BB3 /* Persistence */,
@@ -122,8 +136,25 @@
 			children = (
 				1AA1B08239617F989CD0A316 /* CalendarDay.swift */,
 				312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */,
+				0C805304CAA0146C6EFE024D /* RepeatPolicy.swift */,
 			);
 			path = Calendar;
+			sourceTree = "<group>";
+		};
+		42973D4FE41925BD1E3DA48C /* Scores */ = {
+			isa = PBXGroup;
+			children = (
+				57E612A6F662532355CC1C8C /* ScorePolicy.swift */,
+			);
+			path = Scores;
+			sourceTree = "<group>";
+		};
+		07B5D8B29BF70F60E8A88E82 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A8FCE041CCCF5554F132F7F1 /* LunaSettings.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		8F1ECFCF4C3E42A6DF04CA55 /* Notifications */ = {
@@ -170,6 +201,7 @@
 				5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */,
 				85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */,
 				D8A190201E6D76FCFD340ACF /* SettingsView.swift */,
+				DE3E5EB74FBE6DE5EA28E58A /* ScoreCardView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -180,6 +212,8 @@
 				4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */,
 				74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */,
 				74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */,
+				490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */,
+				2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */,
 			);
 			path = LunaTests;
 			sourceTree = "<group>";
@@ -289,6 +323,9 @@
 				C0DFF619C805EBE4DBA53CD0 /* LunaTheme.swift in Sources */,
 				5CB0341E8503A718F891F753 /* CalendarDay.swift in Sources */,
 				1667618D695750992A0FFA59 /* TaskListOrdering.swift in Sources */,
+				C55DD802D8C6B927E44681C4 /* RepeatPolicy.swift in Sources */,
+				D2DC01675114929046AB5A0E /* ScorePolicy.swift in Sources */,
+				6B7688B81DB9ACAE77057F4E /* LunaSettings.swift in Sources */,
 				01A674A433C64074CF3DC7ED /* ReminderPolicy.swift in Sources */,
 				852FACBE8F27F08134290F33 /* NotificationScheduler.swift in Sources */,
 				511ECC66E41344919C3676B1 /* TaskItem.swift in Sources */,
@@ -302,6 +339,7 @@
 				581C101BA4378A9B13D3F7DB /* EmptyDayView.swift in Sources */,
 				6DF5165FC86F5FF7602B9FE8 /* TaskEditorView.swift in Sources */,
 				0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */,
+				73663F7792191C6FB5F44444 /* ScoreCardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +350,8 @@
 				8141273620ECF6AAB6E2B45C /* CalendarDayTests.swift in Sources */,
 				4CDB69FD629F653EAD105477 /* TaskListOrderingTests.swift in Sources */,
 				EB9598D410B559A932D46760 /* ReminderPolicyTests.swift in Sources */,
+				6A7773144600022CFCE3CB18 /* RepeatPolicyTests.swift in Sources */,
+				75D62EB88D59EEC4E582C528 /* ScorePolicyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

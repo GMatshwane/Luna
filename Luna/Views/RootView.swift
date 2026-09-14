@@ -61,6 +61,7 @@ struct RootView: View {
     let container = LunaPersistence.makeContainer(inMemory: true)
     return RootView()
         .environment(NotificationScheduler())
+        .environment(LunaSettings())
         .modelContainer(container)
         .lunaScreen()
 }
