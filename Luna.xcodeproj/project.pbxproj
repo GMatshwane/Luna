@@ -1,0 +1,593 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		85288D72F05376877AA209A6 /* LunaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383256791198D3A40D08D461 /* LunaApp.swift */; };
+		C0DFF619C805EBE4DBA53CD0 /* LunaTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E370C306A5C848B6B94E86F7 /* LunaTheme.swift */; };
+		5CB0341E8503A718F891F753 /* CalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA1B08239617F989CD0A316 /* CalendarDay.swift */; };
+		1667618D695750992A0FFA59 /* TaskListOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */; };
+		01A674A433C64074CF3DC7ED /* ReminderPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F6AF5F41A2F83AAC2F3612 /* ReminderPolicy.swift */; };
+		852FACBE8F27F08134290F33 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C308E13786465643F2126231 /* NotificationScheduler.swift */; };
+		511ECC66E41344919C3676B1 /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70274C04AB99771AEF487C2 /* TaskItem.swift */; };
+		1BE4CCA4691DFA576E3DF389 /* LunaPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8289D2C658F9D0AF10D227 /* LunaPersistence.swift */; };
+		E235C1B165CC57E136DE5F27 /* TaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C790B4D0AB2B4630F4A3A5 /* TaskService.swift */; };
+		162D836C7C50E6AD190F4643 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C9EF36D5E561B4500076AF /* RootView.swift */; };
+		138AD0086FB545609B279E9B /* DayTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26ACAD496785F0ECAE97F975 /* DayTasksView.swift */; };
+		60336E325A1B4A6D0568BEE5 /* DayStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6F9D3B582E3A2249D768FA /* DayStripView.swift */; };
+		813B9B2110EA660759AB7620 /* CalendarSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18022681DAE21155B0453771 /* CalendarSheet.swift */; };
+		86B3AEEF70B51609086F5F61 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FDFDE6B7CF6EA2B7FB6B7BE /* TaskRowView.swift */; };
+		581C101BA4378A9B13D3F7DB /* EmptyDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */; };
+		6DF5165FC86F5FF7602B9FE8 /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */; };
+		0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A190201E6D76FCFD340ACF /* SettingsView.swift */; };
+		630079499D908838C6A12464 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32BB636196F91ED59D7A4919 /* Assets.xcassets */; };
+		8141273620ECF6AAB6E2B45C /* CalendarDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */; };
+		4CDB69FD629F653EAD105477 /* TaskListOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */; };
+		EB9598D410B559A932D46760 /* ReminderPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		431387EB7262E1CFC79B125E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D4C91345015A4DD0A099400;
+			remoteInfo = Luna;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		81918909E83595C8F4212CCC /* Luna.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Luna.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		858E33F033846B57054E0712 /* LunaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LunaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		32BB636196F91ED59D7A4919 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		383256791198D3A40D08D461 /* LunaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaApp.swift; sourceTree = "<group>"; };
+		E370C306A5C848B6B94E86F7 /* LunaTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaTheme.swift; sourceTree = "<group>"; };
+		1AA1B08239617F989CD0A316 /* CalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDay.swift; sourceTree = "<group>"; };
+		312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOrdering.swift; sourceTree = "<group>"; };
+		A0F6AF5F41A2F83AAC2F3612 /* ReminderPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPolicy.swift; sourceTree = "<group>"; };
+		C308E13786465643F2126231 /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		C70274C04AB99771AEF487C2 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		0A8289D2C658F9D0AF10D227 /* LunaPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaPersistence.swift; sourceTree = "<group>"; };
+		83C790B4D0AB2B4630F4A3A5 /* TaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskService.swift; sourceTree = "<group>"; };
+		31C9EF36D5E561B4500076AF /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		26ACAD496785F0ECAE97F975 /* DayTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayTasksView.swift; sourceTree = "<group>"; };
+		3B6F9D3B582E3A2249D768FA /* DayStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayStripView.swift; sourceTree = "<group>"; };
+		18022681DAE21155B0453771 /* CalendarSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarSheet.swift; sourceTree = "<group>"; };
+		6FDFDE6B7CF6EA2B7FB6B7BE /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
+		5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDayView.swift; sourceTree = "<group>"; };
+		85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorView.swift; sourceTree = "<group>"; };
+		D8A190201E6D76FCFD340ACF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayTests.swift; sourceTree = "<group>"; };
+		74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListOrderingTests.swift; sourceTree = "<group>"; };
+		74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPolicyTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0248D6DB510EB0F7E9C05175 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF4C4AD544E90164AB8FCC3D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8D3FC6DB5D0827F168A73277 = {
+			isa = PBXGroup;
+			children = (
+				CE882751F8B3EE4485706ED4 /* Luna */,
+				F850DA3429877D0A2E262956 /* LunaTests */,
+				1BADDC1D73C1A20F347483E1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CE882751F8B3EE4485706ED4 /* Luna */ = {
+			isa = PBXGroup;
+			children = (
+				383256791198D3A40D08D461 /* LunaApp.swift */,
+				B4A7E86B2D6C42B1FF9B7F42 /* Theme */,
+				F4256091F834239CD49395FE /* Calendar */,
+				8F1ECFCF4C3E42A6DF04CA55 /* Notifications */,
+				E7651EE138212D3A5C27ABA0 /* Models */,
+				87CB5C3A4E6A69531EDF6BB3 /* Persistence */,
+				B295F7D1F3A53E369290BC6A /* Services */,
+				9CECDDFA5EF2AE0232F90708 /* Views */,
+				32BB636196F91ED59D7A4919 /* Assets.xcassets */,
+			);
+			path = Luna;
+			sourceTree = "<group>";
+		};
+		B4A7E86B2D6C42B1FF9B7F42 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				E370C306A5C848B6B94E86F7 /* LunaTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		F4256091F834239CD49395FE /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				1AA1B08239617F989CD0A316 /* CalendarDay.swift */,
+				312FA6FFD341BBB032860E1F /* TaskListOrdering.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		8F1ECFCF4C3E42A6DF04CA55 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A0F6AF5F41A2F83AAC2F3612 /* ReminderPolicy.swift */,
+				C308E13786465643F2126231 /* NotificationScheduler.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		E7651EE138212D3A5C27ABA0 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C70274C04AB99771AEF487C2 /* TaskItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		87CB5C3A4E6A69531EDF6BB3 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				0A8289D2C658F9D0AF10D227 /* LunaPersistence.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		B295F7D1F3A53E369290BC6A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				83C790B4D0AB2B4630F4A3A5 /* TaskService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9CECDDFA5EF2AE0232F90708 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				31C9EF36D5E561B4500076AF /* RootView.swift */,
+				26ACAD496785F0ECAE97F975 /* DayTasksView.swift */,
+				3B6F9D3B582E3A2249D768FA /* DayStripView.swift */,
+				18022681DAE21155B0453771 /* CalendarSheet.swift */,
+				6FDFDE6B7CF6EA2B7FB6B7BE /* TaskRowView.swift */,
+				5BB8EC9F2B39E28CA58BD02A /* EmptyDayView.swift */,
+				85EE5F2C3940BC05B7235531 /* TaskEditorView.swift */,
+				D8A190201E6D76FCFD340ACF /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F850DA3429877D0A2E262956 /* LunaTests */ = {
+			isa = PBXGroup;
+			children = (
+				4104DE0438F77BB6EB7705D2 /* CalendarDayTests.swift */,
+				74B3AB8DB6C311069BBEFA6A /* TaskListOrderingTests.swift */,
+				74E8C4AADB9425FCBFEB8C96 /* ReminderPolicyTests.swift */,
+			);
+			path = LunaTests;
+			sourceTree = "<group>";
+		};
+		1BADDC1D73C1A20F347483E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				81918909E83595C8F4212CCC /* Luna.app */,
+				858E33F033846B57054E0712 /* LunaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3D4C91345015A4DD0A099400 /* Luna */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7698C201D2A724C7CAD56C8 /* Build configuration list for PBXNativeTarget "Luna" */;
+			buildPhases = (
+				DA10D9DD089DF2AFEBC5ED5A /* Sources */,
+				0248D6DB510EB0F7E9C05175 /* Frameworks */,
+				82A968CB662751220D4DFE2D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Luna;
+			productName = Luna;
+			productReference = 81918909E83595C8F4212CCC /* Luna.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DFEE19449146DDDB4DD78AD1 /* LunaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 987A36422455648C86529245 /* Build configuration list for PBXNativeTarget "LunaTests" */;
+			buildPhases = (
+				8F11E0AE1293B031D2165BF2 /* Sources */,
+				DF4C4AD544E90164AB8FCC3D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E54DEBD65D8142E7785275AA /* PBXTargetDependency */,
+			);
+			name = LunaTests;
+			productName = LunaTests;
+			productReference = 858E33F033846B57054E0712 /* LunaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				ORGANIZATIONNAME = Luna;
+				TargetAttributes = {
+					3D4C91345015A4DD0A099400 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					DFEE19449146DDDB4DD78AD1 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 3D4C91345015A4DD0A099400;
+					};
+				};
+			};
+			buildConfigurationList = ADD3EDE971004D3249A2A24C /* Build configuration list for PBXProject "Luna" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8D3FC6DB5D0827F168A73277;
+			productRefGroup = 1BADDC1D73C1A20F347483E1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3D4C91345015A4DD0A099400 /* Luna */,
+				DFEE19449146DDDB4DD78AD1 /* LunaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		82A968CB662751220D4DFE2D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				630079499D908838C6A12464 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DA10D9DD089DF2AFEBC5ED5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85288D72F05376877AA209A6 /* LunaApp.swift in Sources */,
+				C0DFF619C805EBE4DBA53CD0 /* LunaTheme.swift in Sources */,
+				5CB0341E8503A718F891F753 /* CalendarDay.swift in Sources */,
+				1667618D695750992A0FFA59 /* TaskListOrdering.swift in Sources */,
+				01A674A433C64074CF3DC7ED /* ReminderPolicy.swift in Sources */,
+				852FACBE8F27F08134290F33 /* NotificationScheduler.swift in Sources */,
+				511ECC66E41344919C3676B1 /* TaskItem.swift in Sources */,
+				1BE4CCA4691DFA576E3DF389 /* LunaPersistence.swift in Sources */,
+				E235C1B165CC57E136DE5F27 /* TaskService.swift in Sources */,
+				162D836C7C50E6AD190F4643 /* RootView.swift in Sources */,
+				138AD0086FB545609B279E9B /* DayTasksView.swift in Sources */,
+				60336E325A1B4A6D0568BEE5 /* DayStripView.swift in Sources */,
+				813B9B2110EA660759AB7620 /* CalendarSheet.swift in Sources */,
+				86B3AEEF70B51609086F5F61 /* TaskRowView.swift in Sources */,
+				581C101BA4378A9B13D3F7DB /* EmptyDayView.swift in Sources */,
+				6DF5165FC86F5FF7602B9FE8 /* TaskEditorView.swift in Sources */,
+				0366047E1EAD5CC5EA2D8838 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8F11E0AE1293B031D2165BF2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8141273620ECF6AAB6E2B45C /* CalendarDayTests.swift in Sources */,
+				4CDB69FD629F653EAD105477 /* TaskListOrderingTests.swift in Sources */,
+				EB9598D410B559A932D46760 /* ReminderPolicyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E54DEBD65D8142E7785275AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D4C91345015A4DD0A099400 /* Luna */;
+			targetProxy = 431387EB7262E1CFC79B125E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		59233E4D684FB5A1A72525B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8D5ED1041709BB7FC1DE2B10 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		72FB3ED29B4639D83EC5DB14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Luna;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmatshwane.Luna;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		191734982F22ABEBB64A1AE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Luna;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmatshwane.Luna;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5AB3A6BF84C2901E813939E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmatshwane.LunaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Luna.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Luna";
+				TEST_TARGET_NAME = Luna;
+			};
+			name = Debug;
+		};
+		54ECD3B736C66C8688F6C25B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmatshwane.LunaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Luna.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Luna";
+				TEST_TARGET_NAME = Luna;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		ADD3EDE971004D3249A2A24C /* Build configuration list for PBXProject "Luna" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59233E4D684FB5A1A72525B8 /* Debug */,
+				8D5ED1041709BB7FC1DE2B10 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7698C201D2A724C7CAD56C8 /* Build configuration list for PBXNativeTarget "Luna" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72FB3ED29B4639D83EC5DB14 /* Debug */,
+				191734982F22ABEBB64A1AE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		987A36422455648C86529245 /* Build configuration list for PBXNativeTarget "LunaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5AB3A6BF84C2901E813939E6 /* Debug */,
+				54ECD3B736C66C8688F6C25B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}

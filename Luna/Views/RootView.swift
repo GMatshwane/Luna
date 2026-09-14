@@ -1,0 +1,66 @@
+import SwiftUI
+import SwiftData
+
+private struct EditorSession: Identifiable {
+    let id = UUID()
+    let task: TaskItem?
+}
+
+struct RootView: View {
+    @State private var selectedDate = Date()
+    @State private var editorSession: EditorSession?
+    @State private var showingCalendar = false
+    @State private var showingSettings = false
+
+    var body: some View {
+        NavigationStack {
+            DayTasksView(
+                selectedDate: $selectedDate,
+                onAdd: { editorSession = EditorSession(task: nil) },
+                onSelect: { editorSession = EditorSession(task: $0) }
+            )
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingCalendar = true
+                    } label: {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(LunaTheme.highlight)
+                            .accessibilityLabel("Jump to date")
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .foregroundStyle(LunaTheme.highlight)
+                            .accessibilityLabel("Settings")
+                    }
+                }
+            }
+            .toolbarBackground(LunaTheme.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .sheet(item: $editorSession) { session in
+                TaskEditorView(
+                    task: session.task,
+                    defaultDueDate: selectedDate
+                )
+            }
+            .sheet(isPresented: $showingCalendar) {
+                CalendarSheet(selectedDate: $selectedDate)
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
+        }
+    }
+}
+
+#Preview {
+    let container = LunaPersistence.makeContainer(inMemory: true)
+    return RootView()
+        .environment(NotificationScheduler())
+        .modelContainer(container)
+        .lunaScreen()
+}
