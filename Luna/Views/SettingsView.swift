@@ -5,10 +5,38 @@ import UserNotifications
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(NotificationScheduler.self) private var scheduler
+    @Environment(LunaSettings.self) private var settings
 
     var body: some View {
+        @Bindable var settings = settings
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("DAILY GOAL")
+                        .font(.caption.weight(.semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(LunaTheme.secondary)
+
+                    Stepper(value: $settings.dailyPointGoal, in: ScorePolicy.minimumDailyGoal...ScorePolicy.maximumDailyGoal) {
+                        Text("\(settings.dailyPointGoal) points")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(LunaTheme.highlight)
+                    }
+                    .accessibilityLabel("Daily goal \(settings.dailyPointGoal) points")
+
+                    Text("Completing tasks adds their points toward this day’s goal.")
+                        .font(.subheadline)
+                        .foregroundStyle(LunaTheme.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(LunaTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(LunaTheme.border.opacity(0.45), lineWidth: 1)
+                }
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text("NOTIFICATIONS")
                         .font(.caption.weight(.semibold))

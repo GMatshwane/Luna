@@ -12,11 +12,13 @@ struct TaskService {
         notes: String?,
         dueDate: Date,
         reminderAt: Date?,
-        repeatIntervalDays: Int?
+        repeatIntervalDays: Int?,
+        points: Int
     ) async -> TaskItem? {
         let trimmedTitle = TaskItem.normalizedTitle(title)
         guard !trimmedTitle.isEmpty else { return nil }
         let interval = RepeatPolicy.normalizedInterval(repeatIntervalDays)
+        let pointValue = ScorePolicy.normalizedPoints(points)
 
         let task: TaskItem
         if let existing {
@@ -26,6 +28,7 @@ struct TaskService {
             task.dueDate = CalendarDay.startOfDay(dueDate)
             task.reminderAt = reminderAt
             task.repeatIntervalDays = interval
+            task.points = pointValue
         } else {
             task = TaskItem(
                 title: trimmedTitle,
@@ -33,7 +36,8 @@ struct TaskService {
                 dueDate: dueDate,
                 reminderAt: reminderAt,
                 sortOrder: nextSortOrder(for: CalendarDay.startOfDay(dueDate)),
-                repeatIntervalDays: interval
+                repeatIntervalDays: interval,
+                points: pointValue
             )
             context.insert(task)
         }
@@ -98,7 +102,8 @@ struct TaskService {
             dueDate: next.dueDate,
             reminderAt: next.reminderAt,
             sortOrder: nextSortOrder(for: next.dueDate),
-            repeatIntervalDays: next.intervalDays
+            repeatIntervalDays: next.intervalDays,
+            points: task.points
         )
         context.insert(spawned)
         persist()

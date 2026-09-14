@@ -33,11 +33,12 @@ xcodebuild test -scheme Luna -destination 'platform=iOS Simulator,name=iPhone 16
 - Add / edit / complete / delete tasks
 - Optional per-task reminder time with local notifications
 - Optional every-N-days repeat (next copy appears on complete)
+- Daily scores: points per task and a daily goal with live progress on each day
 - Dark-only Luna palette (`#011C40`, `#023859`, `#26658C`, `#54ACBF`, `#A7EBF2`)
 
 ## Out of scope
 
-Reminders/Calendar sync, iCloud, widgets, Siri, weekday/monthly/RRULE recurrence, priorities, folders, light mode, and auto-rolling unfinished tasks to tomorrow.
+Reminders/Calendar sync, iCloud, widgets, Siri, weekday/monthly/RRULE recurrence, streaks, priorities, folders, light mode, and auto-rolling unfinished tasks to tomorrow.
 
 ## Project layout
 

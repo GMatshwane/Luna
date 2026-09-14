@@ -5,6 +5,7 @@ import UserNotifications
 @main
 struct LunaApp: App {
     @State private var scheduler = NotificationScheduler()
+    @State private var settings = LunaSettings()
     @Environment(\.scenePhase) private var scenePhase
 
     private let container: ModelContainer
@@ -18,6 +19,7 @@ struct LunaApp: App {
         WindowGroup {
             RootView()
                 .environment(scheduler)
+                .environment(settings)
                 .modelContainer(container)
                 .lunaScreen()
                 .task {

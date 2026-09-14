@@ -20,6 +20,7 @@ struct DayTasksView: View {
 private struct DayTaskList: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(NotificationScheduler.self) private var scheduler
+    @Environment(LunaSettings.self) private var settings
 
     let dayStart: Date
     @Binding var selectedDate: Date
@@ -50,6 +51,10 @@ private struct DayTaskList: View {
 
     private var orderedTasks: [TaskItem] {
         TaskListOrdering.sorted(tasks) { $0.sortKey }
+    }
+
+    private var earnedPoints: Int {
+        ScorePolicy.earnedPoints(from: tasks, points: { $0.points }, isCompleted: { $0.isCompleted })
     }
 
     var body: some View {
@@ -117,9 +122,11 @@ private struct DayTaskList: View {
             Text(subtitleText)
                 .font(.subheadline)
                 .foregroundStyle(LunaTheme.secondary)
+
+            ScoreCardView(earned: earnedPoints, goal: settings.dailyPointGoal)
+                .padding(.top, 10)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
     }
 
     private var titleText: String {

@@ -17,6 +17,7 @@ struct TaskEditorView: View {
     @State private var reminderTime: Date
     @State private var repeatEnabled: Bool
     @State private var repeatDays: Int
+    @State private var points: Int
     @State private var showingDeleteConfirm = false
 
     init(task: TaskItem?, defaultDueDate: Date) {
@@ -30,6 +31,7 @@ struct TaskEditorView: View {
         let interval = RepeatPolicy.normalizedInterval(task?.repeatIntervalDays)
         _repeatEnabled = State(initialValue: interval != nil)
         _repeatDays = State(initialValue: interval ?? 1)
+        _points = State(initialValue: ScorePolicy.normalizedPoints(task?.points ?? ScorePolicy.defaultPoints))
     }
 
     private var canSave: Bool {
@@ -68,6 +70,14 @@ struct TaskEditorView: View {
                         .labelsHidden()
                         .tint(LunaTheme.highlight)
                         .colorScheme(.dark)
+                    }
+
+                    editorField(title: "Points") {
+                        Stepper(value: $points, in: ScorePolicy.minimumPoints...ScorePolicy.maximumPoints) {
+                            Text(points == 1 ? "1 point" : "\(points) points")
+                                .foregroundStyle(LunaTheme.highlight)
+                        }
+                        .accessibilityLabel(points == 1 ? "1 point" : "\(points) points")
                     }
 
                     reminderSection
@@ -237,7 +247,8 @@ struct TaskEditorView: View {
             notes: notes,
             dueDate: dueDate,
             reminderAt: reminderAt,
-            repeatIntervalDays: interval
+            repeatIntervalDays: interval,
+            points: points
         )
         dismiss()
     }

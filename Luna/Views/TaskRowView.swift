@@ -42,6 +42,11 @@ struct TaskRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .onTapGesture(perform: onOpen)
+
+            Text("\(ScorePolicy.normalizedPoints(task.points))")
+                .font(.subheadline.monospacedDigit().weight(.semibold))
+                .foregroundStyle(task.isCompleted ? LunaTheme.secondary : LunaTheme.highlight)
+                .accessibilityLabel("\(ScorePolicy.normalizedPoints(task.points)) points")
         }
         .padding(16)
         .background(LunaTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
