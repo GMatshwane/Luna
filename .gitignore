@@ -1,0 +1,23 @@
+# macOS / Xcode
+.DS_Store
+.AppleDouble
+.LSOverride
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift / SPM
+.build/
+.swiftpm/
+
+# Editor
+*.swp
+*~
+.idea/
