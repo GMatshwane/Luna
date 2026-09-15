@@ -83,12 +83,29 @@ def main() -> int:
         ok(hex_color in theme, f"LunaTheme missing {hex_color}")
 
     model = read(ROOT / "Luna/Models/TaskItem.swift")
-    for field in ("id: UUID", "title: String", "notes: String?", "dueDate: Date", "reminderAt: Date?", "isCompleted: Bool", "createdAt: Date", "sortOrder: Int", "repeatIntervalDays: Int?", "points: Int", "category: Category?"):
+    for field in (
+        "id: UUID",
+        "title: String",
+        "notes: String?",
+        "dueDate: Date",
+        "reminderAt: Date?",
+        "isCompleted: Bool",
+        "createdAt: Date",
+        "sortOrder: Int",
+        "repeatIntervalDays: Int?",
+        "repeatKindRaw: String?",
+        "repeatWeekdaysMask: Int",
+        "repeatMonthDay: Int?",
+        "repeatMonth: Int?",
+        "points: Int",
+        "category: Category?",
+    ):
         ok(field in model, f"TaskItem missing {field}")
     ok("@Model" in model, "TaskItem is not a SwiftData @Model")
     ok("CalendarDay.startOfDay" in model, "TaskItem should normalize dueDate")
-    ok("RepeatPolicy.normalizedInterval" in model, "TaskItem should normalize repeat interval")
+    ok("RepeatPolicy.normalizedInterval" in model or "RepeatPolicy.normalized(" in model, "TaskItem should normalize repeat rule")
     ok("ScorePolicy.normalizedPoints" in model, "TaskItem should normalize points")
+    ok("var recurrence" in model or "RepeatPolicy.rule(fromStored" in model, "TaskItem should expose RecurrenceRule")
 
     category_model = read(ROOT / "Luna/Models/Category.swift")
     ok("@Model" in category_model, "Category is not a SwiftData @Model")
@@ -105,10 +122,21 @@ def main() -> int:
     ok("enum Filter" in category_policy, "CategoryPolicy.Filter missing")
 
     repeat_policy = read(ROOT / "Luna/Calendar/RepeatPolicy.swift")
+    ok("enum RecurrenceRule" in repeat_policy, "RecurrenceRule missing")
+    ok("case everyNDays" in repeat_policy, "RecurrenceRule.everyNDays missing")
+    ok("case weekdays" in repeat_policy, "RecurrenceRule.weekdays missing")
+    ok("case weekly" in repeat_policy, "RecurrenceRule.weekly missing")
+    ok("case monthly" in repeat_policy, "RecurrenceRule.monthly missing")
+    ok("case yearly" in repeat_policy, "RecurrenceRule.yearly missing")
     ok("shouldSpawnNext" in repeat_policy, "RepeatPolicy.shouldSpawnNext missing")
     ok("nextOccurrence" in repeat_policy, "RepeatPolicy.nextOccurrence missing")
     ok("normalizedInterval" in repeat_policy, "RepeatPolicy.normalizedInterval missing")
     ok("date(byAdding: .day" in repeat_policy, "next occurrence must shift by calendar days")
+    ok("StoredFields" in repeat_policy, "RepeatPolicy.StoredFields missing")
+    ok("rulesMatch" in repeat_policy, "RepeatPolicy.rulesMatch missing")
+    ok("mondayThroughFriday" in repeat_policy, "weekday preset missing")
+    ok("weekendDays" in repeat_policy, "weekend preset missing")
+    ok("RRULE" not in repeat_policy and "rrule" not in repeat_policy, "skip RRULE parsing")
 
     policy = read(ROOT / "Luna/Notifications/ReminderPolicy.swift")
     ok('identifierPrefix = "luna.task."' in policy, "notification identifier prefix missing")
