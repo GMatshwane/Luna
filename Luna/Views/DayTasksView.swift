@@ -162,7 +162,7 @@ private struct DayTaskList: View {
                 CategoryColorDot(hex: section.colorHex)
             }
             Text(section.name.uppercased())
-                .font(.caption.weight(.semibold))
+                .font(LunaTypography.font(.caption, weight: .semibold))
                 .tracking(1.2)
                 .foregroundStyle(LunaTheme.secondary)
             Spacer()
@@ -173,7 +173,7 @@ private struct DayTaskList: View {
 
     private var emptyFilterMessage: some View {
         Text("No tasks in this category.")
-            .font(.subheadline)
+            .font(LunaTypography.font(.subheadline))
             .foregroundStyle(LunaTheme.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 12)
@@ -216,7 +216,7 @@ private struct DayTaskList: View {
                     CategoryColorDot(hex: hex, size: 8)
                 }
                 Text(title)
-                    .font(.caption.weight(.semibold))
+                    .font(LunaTypography.font(.caption, weight: .semibold))
                     .foregroundStyle(isSelected ? LunaTheme.background : LunaTheme.highlight)
             }
             .padding(.horizontal, 12)
@@ -233,16 +233,16 @@ private struct DayTaskList: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("LUNA")
-                .font(.system(size: 14, weight: .regular, design: .serif))
+                .font(LunaTypography.font(size: 14, relativeTo: .footnote))
                 .tracking(6)
                 .foregroundStyle(LunaTheme.secondary)
 
             Text(titleText)
-                .font(.system(size: 34, weight: .semibold, design: .serif))
+                .font(LunaTypography.font(.largeTitle, weight: .semibold))
                 .foregroundStyle(LunaTheme.highlight)
 
             Text(subtitleText)
-                .font(.subheadline)
+                .font(LunaTypography.font(.subheadline))
                 .foregroundStyle(LunaTheme.secondary)
 
             ScoreCardView(earned: earnedPoints, goal: settings.dailyPointGoal)

@@ -22,24 +22,24 @@ struct TaskRowView: View {
                         CategoryColorDot(hex: task.category?.colorHex)
                     }
                     Text(task.title)
-                        .font(.body.weight(.medium))
+                        .font(LunaTypography.font(.body, weight: .medium))
                         .foregroundStyle(task.isCompleted ? LunaTheme.secondary : LunaTheme.highlight)
                         .strikethrough(task.isCompleted, color: LunaTheme.secondary)
                 }
 
                 if let reminderAt = task.reminderAt {
                     Label(reminderAt.formatted(date: .omitted, time: .shortened), systemImage: "bell")
-                        .font(.caption)
+                        .font(LunaTypography.font(.caption))
                         .foregroundStyle(LunaTheme.secondary)
                 }
 
                 if let rule = task.recurrence {
                     Label(RepeatPolicy.summaryLabel(rule), systemImage: "repeat")
-                        .font(.caption)
+                        .font(LunaTypography.font(.caption))
                         .foregroundStyle(LunaTheme.secondary)
                 } else if task.reminderAt == nil, let notes = task.notes {
                     Text(notes)
-                        .font(.caption)
+                        .font(LunaTypography.font(.caption))
                         .foregroundStyle(LunaTheme.secondary)
                         .lineLimit(1)
                 }
@@ -49,7 +49,7 @@ struct TaskRowView: View {
             .onTapGesture(perform: onOpen)
 
             Text("\(ScorePolicy.normalizedPoints(task.points))")
-                .font(.subheadline.monospacedDigit().weight(.semibold))
+                .font(LunaTypography.tabular(.subheadline, weight: .semibold))
                 .foregroundStyle(task.isCompleted ? LunaTheme.secondary : LunaTheme.highlight)
                 .accessibilityLabel("\(ScorePolicy.normalizedPoints(task.points)) points")
         }

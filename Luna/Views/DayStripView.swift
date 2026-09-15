@@ -48,12 +48,12 @@ private struct DayChip: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Text(day.formatted(.dateTime.weekday(.narrow)))
-                .font(.caption2.weight(.medium))
+            Text(WeekdayAbbreviation.compact(day))
+                .font(LunaTypography.font(.caption2, weight: .medium))
                 .foregroundStyle(isSelected ? LunaTheme.background : LunaTheme.secondary)
 
             Text(day.formatted(.dateTime.day()))
-                .font(.headline.monospacedDigit())
+                .font(LunaTypography.tabular(.headline))
                 .foregroundStyle(isSelected ? LunaTheme.background : LunaTheme.highlight)
         }
         .frame(width: 48, height: 64)

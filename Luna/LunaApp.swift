@@ -11,6 +11,7 @@ struct LunaApp: App {
     private let container: ModelContainer
 
     init() {
+        LunaTypography.registerIfNeeded()
         container = LunaPersistence.makeContainer()
         UNUserNotificationCenter.current().delegate = NotificationPresentationDelegate.shared
     }
@@ -20,6 +21,7 @@ struct LunaApp: App {
             RootView()
                 .environment(scheduler)
                 .environment(settings)
+                .environment(\.font, LunaTypography.font(.body))
                 .modelContainer(container)
                 .lunaScreen()
                 .preferredColorScheme(settings.appearance.preferredColorScheme)
