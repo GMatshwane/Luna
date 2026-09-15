@@ -45,6 +45,5 @@ struct CalendarSheet: View {
             .toolbarBackground(LunaTheme.background, for: .navigationBar)
         }
         .presentationDetents([.medium, .large])
-        .preferredColorScheme(.dark)
     }
 }

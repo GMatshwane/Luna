@@ -12,6 +12,34 @@ struct SettingsView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 12) {
+                    Text("APPEARANCE")
+                        .font(.caption.weight(.semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(LunaTheme.secondary)
+
+                    Picker("Appearance", selection: $settings.appearance) {
+                        ForEach(LunaAppearance.allCases) { option in
+                            Text(option.title).tag(option)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .tint(LunaTheme.highlight)
+                    .accessibilityLabel("Appearance")
+
+                    Text("System follows this iPhone. Light and Dark stay until you change them.")
+                        .font(.subheadline)
+                        .foregroundStyle(LunaTheme.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(LunaTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(LunaTheme.border.opacity(0.45), lineWidth: 1)
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
                     Text("DAILY GOAL")
                         .font(.caption.weight(.semibold))
                         .tracking(1.2)
@@ -93,7 +121,6 @@ struct SettingsView: View {
                 await scheduler.refreshStatus()
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     private var statusTitle: String {

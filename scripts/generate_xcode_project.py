@@ -42,6 +42,8 @@ TEST_SWIFT = [
     "RepeatPolicyTests.swift",
     "ScorePolicyTests.swift",
     "CategoryPolicyTests.swift",
+    "LunaThemeTests.swift",
+    "LunaSettingsTests.swift",
 ]
 
 
@@ -132,12 +134,36 @@ def write_assets() -> None:
         "color-space" : "srgb",
         "components" : {
           "alpha" : "1.000",
+          "blue" : "0x40",
+          "green" : "0x1C",
+          "red" : "0x01"
+        }
+      },
+      "idiom" : "universal",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "color" : {
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
           "blue" : "0xF2",
           "green" : "0xEB",
           "red" : "0xA7"
         }
       },
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
     }
   ],
   "info" : {
@@ -462,7 +488,6 @@ def pbxproj() -> str:
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

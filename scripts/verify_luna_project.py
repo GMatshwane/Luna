@@ -179,6 +179,7 @@ def main() -> int:
     ok("COLOR" in category_editor, "category editor optional color missing")
     ok("saveCategory" in category_editor, "category editor must persist through TaskService")
     ok("Delete category" in category_editor, "category editor delete missing")
+    ok(".preferredColorScheme(.dark)" not in category_editor, "category editor must not force dark")
 
     settings = read(ROOT / "Luna/Views/SettingsView.swift")
     ok("authorizationStatus" in settings, "settings permission status missing")
