@@ -62,6 +62,8 @@ def main() -> int:
         "LunaTests/RepeatPolicyTests.swift",
         "LunaTests/ScorePolicyTests.swift",
         "LunaTests/CategoryPolicyTests.swift",
+        "LunaTests/LunaThemeTests.swift",
+        "LunaTests/LunaSettingsTests.swift",
     ]
     for rel in required:
         ok((ROOT / rel).is_file(), f"missing {rel}")
@@ -74,13 +76,17 @@ def main() -> int:
         ok(name in pbx, f"{rel} is not referenced in project.pbxproj")
 
     ok("PRODUCT_BUNDLE_IDENTIFIER = com.gmatshwane.Luna;" in pbx, "app bundle id missing")
-    ok("INFOPLIST_KEY_UIUserInterfaceStyle = Dark;" in pbx, "dark-only UIUserInterfaceStyle missing")
+    ok("INFOPLIST_KEY_UIUserInterfaceStyle = Dark;" not in pbx, "UIUserInterfaceStyle must not force dark")
     ok("IPHONEOS_DEPLOYMENT_TARGET = 17.0;" in pbx, "iOS 17 deployment target missing")
     ok("CloudKit" not in pbx, "CloudKit must not be in the project")
 
     theme = read(ROOT / "Luna/Theme/LunaTheme.swift")
     for hex_color in ("0x011C40", "0x023859", "0x26658C", "0x54ACBF", "0xA7EBF2"):
-        ok(hex_color in theme, f"LunaTheme missing {hex_color}")
+        ok(hex_color in theme, f"LunaTheme missing dark {hex_color}")
+    for hex_color in ("0xEAF8FA", "0xFFFFFF"):
+        ok(hex_color in theme, f"LunaTheme missing light {hex_color}")
+    ok("Palette" in theme, "LunaTheme should expose Palette snapshots")
+    ok("preferredColorScheme(.dark)" not in theme, "lunaScreen must not force dark")
 
     model = read(ROOT / "Luna/Models/TaskItem.swift")
     for field in ("id: UUID", "title: String", "notes: String?", "dueDate: Date", "reminderAt: Date?", "isCompleted: Bool", "createdAt: Date", "sortOrder: Int", "repeatIntervalDays: Int?", "points: Int", "category: Category?"):
@@ -145,6 +151,11 @@ def main() -> int:
     settings_store = read(ROOT / "Luna/Settings/LunaSettings.swift")
     ok("dailyPointGoal" in settings_store, "LunaSettings dailyPointGoal missing")
     ok("UserDefaults" in settings_store, "daily goal should persist in UserDefaults")
+    ok("appearance" in settings_store, "LunaSettings appearance missing")
+    ok("luna.appearance" in settings_store, "appearance should persist under luna.appearance")
+    ok("enum LunaAppearance" in settings_store, "LunaAppearance enum missing")
+    for case_name in ("system", "light", "dark"):
+        ok(case_name in settings_store, f"LunaAppearance missing {case_name}")
 
     score_card = read(ROOT / "Luna/Views/ScoreCardView.swift")
     ok("LunaTheme.highlight" in score_card, "score fill should use highlight")
@@ -160,6 +171,8 @@ def main() -> int:
     ok("selectedCategory" in editor and "CATEGORY" in editor, "editor category picker missing")
     ok("New category" in editor, "editor must create user-defined categories")
     ok("category: selectedCategory" in editor, "editor must persist the assigned category")
+    ok(".preferredColorScheme(.dark)" not in editor, "editor must not force dark")
+    ok(".colorScheme(.dark)" not in editor, "editor controls must not force dark")
 
     category_editor = read(ROOT / "Luna/Views/CategoryEditorView.swift")
     ok("NAME" in category_editor, "category editor name field missing")
@@ -170,6 +183,12 @@ def main() -> int:
     settings = read(ROOT / "Luna/Views/SettingsView.swift")
     ok("authorizationStatus" in settings, "settings permission status missing")
     ok("dailyPointGoal" in settings, "settings daily goal editor missing")
+    ok("appearance" in settings, "settings appearance override missing")
+    ok("System" in settings and "Light" in settings and "Dark" in settings, "settings appearance choices missing")
+    ok(".preferredColorScheme(.dark)" not in settings, "settings must not force dark")
+
+    calendar = read(ROOT / "Luna/Views/CalendarSheet.swift")
+    ok(".preferredColorScheme(.dark)" not in calendar, "calendar sheet must not force dark")
 
     empty = read(ROOT / "Luna/Views/EmptyDayView.swift")
     ok("A quiet evening." in empty, "today empty-state copy missing")
@@ -191,7 +210,8 @@ def main() -> int:
     ok("Category.self" in persistence, "schema must include Category")
 
     app = read(ROOT / "Luna/LunaApp.swift")
-    ok("preferredColorScheme" in app or "lunaScreen()" in app, "dark preference missing at app root")
+    ok("preferredColorScheme" in app, "appearance preference missing at app root")
+    ok("settings.appearance" in app, "root color scheme must come from LunaSettings")
     ok("modelContainer" in app, "model container not injected")
     ok("environment(settings)" in app, "LunaSettings not injected")
 
@@ -318,6 +338,27 @@ def main() -> int:
     ok(grouped(rows, health)[0][2] == ["Stretch", "Walk"], "category replica: filter identified")
     ok(sum(1 for item in rows if True) == 4, "category replica: day score still counts every task")
 
+    def parse_appearance(raw):
+        if raw in ("system", "light", "dark"):
+            return raw
+        return "system"
+
+    def preferred_scheme(appearance):
+        return {"system": None, "light": "light", "dark": "dark"}[appearance]
+
+    ok(parse_appearance(None) == "system", "appearance replica: default system")
+    ok(parse_appearance("light") == "light", "appearance replica: light")
+    ok(parse_appearance("sepia") == "system", "appearance replica: invalid falls back")
+    ok(preferred_scheme("system") is None, "appearance replica: system follows OS")
+    ok(preferred_scheme("dark") == "dark", "appearance replica: dark override")
+
+    theme_tests = read(ROOT / "LunaTests/LunaThemeTests.swift")
+    ok("#EAF8FA" in theme_tests, "theme tests should lock the light background")
+    ok("#FFFFFF" in theme_tests, "theme tests should lock the light surface")
+    settings_tests = read(ROOT / "LunaTests/LunaSettingsTests.swift")
+    ok("appearanceKey" in settings_tests, "settings tests should persist appearance")
+    ok("preferredColorScheme" in settings_tests, "settings tests should map color scheme")
+
     spec = read(ROOT / "docs/superpowers/specs/2026-09-14-luna-task-reminder-design.md").lower()
     ok("repeatintervaldays" in spec, "design spec missing repeatIntervalDays")
     ok("every n days" in spec, "design spec missing every-N-days behavior")
@@ -350,7 +391,7 @@ def main() -> int:
     print("verify_luna_project: OK")
     print(f"  app swift files: {len(swift_on_disk)}")
     print(f"  test swift files: {len(test_on_disk)}")
-    print("  TaskItem fields, Luna palette, notification cancel-then-schedule, and dark-only project settings match the spec.")
+    print("  TaskItem fields, Luna light/dark palettes, appearance persistence, and notification cancel-then-schedule match the spec.")
     return 0
 
 
