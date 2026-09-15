@@ -8,7 +8,7 @@ import struct
 import zlib
 from pathlib import Path
 
-ROOT = Path("/workspace")
+ROOT = Path(__file__).resolve().parents[1]
 APP_SWIFT = [
     "LunaApp.swift",
     "Theme/LunaTheme.swift",
@@ -20,6 +20,8 @@ APP_SWIFT = [
     "Notifications/ReminderPolicy.swift",
     "Notifications/NotificationScheduler.swift",
     "Models/TaskItem.swift",
+    "Models/Category.swift",
+    "Models/CategoryPolicy.swift",
     "Persistence/LunaPersistence.swift",
     "Services/TaskService.swift",
     "Views/RootView.swift",
@@ -29,6 +31,7 @@ APP_SWIFT = [
     "Views/TaskRowView.swift",
     "Views/EmptyDayView.swift",
     "Views/TaskEditorView.swift",
+    "Views/CategoryEditorView.swift",
     "Views/SettingsView.swift",
     "Views/ScoreCardView.swift",
 ]
@@ -38,6 +41,7 @@ TEST_SWIFT = [
     "ReminderPolicyTests.swift",
     "RepeatPolicyTests.swift",
     "ScorePolicyTests.swift",
+    "CategoryPolicyTests.swift",
 ]
 
 

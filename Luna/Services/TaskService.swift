@@ -13,7 +13,8 @@ struct TaskService {
         dueDate: Date,
         reminderAt: Date?,
         repeatIntervalDays: Int?,
-        points: Int
+        points: Int,
+        category: Category?
     ) async -> TaskItem? {
         let trimmedTitle = TaskItem.normalizedTitle(title)
         guard !trimmedTitle.isEmpty else { return nil }
@@ -29,6 +30,7 @@ struct TaskService {
             task.reminderAt = reminderAt
             task.repeatIntervalDays = interval
             task.points = pointValue
+            task.category = category
         } else {
             task = TaskItem(
                 title: trimmedTitle,
@@ -37,7 +39,8 @@ struct TaskService {
                 reminderAt: reminderAt,
                 sortOrder: nextSortOrder(for: CalendarDay.startOfDay(dueDate)),
                 repeatIntervalDays: interval,
-                points: pointValue
+                points: pointValue,
+                category: category
             )
             context.insert(task)
         }
@@ -66,6 +69,40 @@ struct TaskService {
         let taskID = task.id
         scheduler.cancel(taskID: taskID)
         context.delete(task)
+        persist()
+    }
+
+    func saveCategory(existing: Category?, name: String, colorHex: String?) -> Category? {
+        guard let trimmed = CategoryPolicy.normalizedName(name) else { return nil }
+        let color = CategoryPolicy.normalizedColorHex(colorHex)
+
+        if let existing {
+            existing.name = trimmed
+            existing.colorHex = color
+            persist()
+            return existing
+        }
+
+        if let match = existingCategory(named: trimmed) {
+            if match.colorHex == nil, let color {
+                match.colorHex = color
+            }
+            persist()
+            return match
+        }
+
+        let category = Category(
+            name: trimmed,
+            colorHex: color,
+            sortOrder: nextCategorySortOrder()
+        )
+        context.insert(category)
+        persist()
+        return category
+    }
+
+    func deleteCategory(_ category: Category) {
+        context.delete(category)
         persist()
     }
 
@@ -103,7 +140,8 @@ struct TaskService {
             reminderAt: next.reminderAt,
             sortOrder: nextSortOrder(for: next.dueDate),
             repeatIntervalDays: next.intervalDays,
-            points: task.points
+            points: task.points,
+            category: task.category
         )
         context.insert(spawned)
         persist()
@@ -139,6 +177,22 @@ struct TaskService {
             predicate: #Predicate { task in
                 task.dueDate >= start && task.dueDate < end
             },
+            sortBy: [SortDescriptor(\.sortOrder, order: .reverse)]
+        )
+        let existing = (try? context.fetch(descriptor)) ?? []
+        return (existing.first?.sortOrder ?? -1) + 1
+    }
+
+    private func existingCategory(named name: String) -> Category? {
+        let descriptor = FetchDescriptor<Category>(
+            sortBy: [SortDescriptor(\.sortOrder)]
+        )
+        let matches = (try? context.fetch(descriptor)) ?? []
+        return matches.first { CategoryPolicy.namesMatch($0.name, name) }
+    }
+
+    private func nextCategorySortOrder() -> Int {
+        let descriptor = FetchDescriptor<Category>(
             sortBy: [SortDescriptor(\.sortOrder, order: .reverse)]
         )
         let existing = (try? context.fetch(descriptor)) ?? []

@@ -13,6 +13,7 @@ final class TaskItem {
     var sortOrder: Int
     var repeatIntervalDays: Int? = nil
     var points: Int = 1
+    var category: Category? = nil
 
     init(
         id: UUID = UUID(),
@@ -24,7 +25,8 @@ final class TaskItem {
         createdAt: Date = .now,
         sortOrder: Int = 0,
         repeatIntervalDays: Int? = nil,
-        points: Int = ScorePolicy.defaultPoints
+        points: Int = ScorePolicy.defaultPoints,
+        category: Category? = nil
     ) {
         self.id = id
         self.title = title
@@ -36,6 +38,7 @@ final class TaskItem {
         self.sortOrder = sortOrder
         self.repeatIntervalDays = RepeatPolicy.normalizedInterval(repeatIntervalDays)
         self.points = ScorePolicy.normalizedPoints(points)
+        self.category = category
     }
 
     var sortKey: TaskSortKey {

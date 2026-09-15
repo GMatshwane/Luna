@@ -6,6 +6,7 @@ struct TaskEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(NotificationScheduler.self) private var scheduler
+    @Query(sort: \Category.name) private var categories: [Category]
 
     let task: TaskItem?
     let defaultDueDate: Date
@@ -18,7 +19,9 @@ struct TaskEditorView: View {
     @State private var repeatEnabled: Bool
     @State private var repeatDays: Int
     @State private var points: Int
+    @State private var selectedCategory: Category?
     @State private var showingDeleteConfirm = false
+    @State private var categoryEditor: CategoryEditorSession?
 
     init(task: TaskItem?, defaultDueDate: Date) {
         self.task = task
@@ -32,6 +35,7 @@ struct TaskEditorView: View {
         _repeatEnabled = State(initialValue: interval != nil)
         _repeatDays = State(initialValue: interval ?? 1)
         _points = State(initialValue: ScorePolicy.normalizedPoints(task?.points ?? ScorePolicy.defaultPoints))
+        _selectedCategory = State(initialValue: task?.category)
     }
 
     private var canSave: Bool {
@@ -79,6 +83,8 @@ struct TaskEditorView: View {
                         }
                         .accessibilityLabel(points == 1 ? "1 point" : "\(points) points")
                     }
+
+                    categorySection
 
                     reminderSection
 
@@ -130,8 +136,99 @@ struct TaskEditorView: View {
             .task {
                 await scheduler.refreshStatus()
             }
+            .sheet(item: $categoryEditor) { session in
+                CategoryEditorView(category: session.category) { saved in
+                    selectedCategory = saved
+                }
+            }
         }
         .preferredColorScheme(.dark)
+    }
+
+    private var orderedCategories: [Category] {
+        categories.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private var categorySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("CATEGORY")
+                .font(.caption.weight(.semibold))
+                .tracking(1.2)
+                .foregroundStyle(LunaTheme.secondary)
+
+            categoryChoiceRow(title: "None", hex: nil, isSelected: selectedCategory == nil) {
+                selectedCategory = nil
+            }
+
+            ForEach(orderedCategories, id: \.id) { category in
+                categoryChoiceRow(
+                    title: category.name,
+                    hex: category.colorHex,
+                    isSelected: selectedCategory?.id == category.id
+                ) {
+                    selectedCategory = category
+                }
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    categoryEditor = CategoryEditorSession(category: nil)
+                } label: {
+                    Text("New category")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(LunaTheme.highlight)
+                }
+
+                if selectedCategory != nil {
+                    Button {
+                        categoryEditor = CategoryEditorSession(category: selectedCategory)
+                    } label: {
+                        Text("Edit")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(LunaTheme.secondary)
+                    }
+                    .accessibilityLabel("Edit category")
+                }
+            }
+            .padding(.top, 4)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(LunaTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(LunaTheme.border.opacity(0.45), lineWidth: 1)
+        }
+        .onChange(of: categories.map(\.id)) { _, ids in
+            if let selectedCategory, !ids.contains(selectedCategory.id) {
+                self.selectedCategory = nil
+            }
+        }
+    }
+
+    private func categoryChoiceRow(title: String, hex: String?, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                if hex != nil {
+                    CategoryColorDot(hex: hex)
+                } else {
+                    Circle()
+                        .stroke(LunaTheme.border, lineWidth: 1)
+                        .frame(width: 10, height: 10)
+                }
+                Text(title)
+                    .foregroundStyle(LunaTheme.highlight)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(LunaTheme.highlight)
+                        .accessibilityHidden(true)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var reminderSection: some View {
@@ -248,7 +345,8 @@ struct TaskEditorView: View {
             dueDate: dueDate,
             reminderAt: reminderAt,
             repeatIntervalDays: interval,
-            points: points
+            points: points,
+            category: selectedCategory
         )
         dismiss()
     }
@@ -270,4 +368,9 @@ struct TaskEditorView: View {
         components.minute = 0
         return Calendar.current.date(from: components) ?? Date()
     }
+}
+
+private struct CategoryEditorSession: Identifiable {
+    let id = UUID()
+    let category: Category?
 }
