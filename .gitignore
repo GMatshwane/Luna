@@ -21,3 +21,6 @@ playground.xcworkspace
 *.swp
 *~
 .idea/
+
+# Git worktrees
+.worktrees/
