@@ -33,8 +33,8 @@ struct TaskRowView: View {
                         .foregroundStyle(LunaTheme.secondary)
                 }
 
-                if let interval = RepeatPolicy.normalizedInterval(task.repeatIntervalDays) {
-                    Label(RepeatPolicy.summaryLabel(intervalDays: interval), systemImage: "repeat")
+                if let rule = task.recurrence {
+                    Label(RepeatPolicy.summaryLabel(rule), systemImage: "repeat")
                         .font(.caption)
                         .foregroundStyle(LunaTheme.secondary)
                 } else if task.reminderAt == nil, let notes = task.notes {

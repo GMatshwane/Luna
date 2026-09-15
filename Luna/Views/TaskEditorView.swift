@@ -17,7 +17,10 @@ struct TaskEditorView: View {
     @State private var reminderEnabled: Bool
     @State private var reminderTime: Date
     @State private var repeatEnabled: Bool
+    @State private var repeatKind: EditorRepeatKind
     @State private var repeatDays: Int
+    @State private var weekdayPreset: WeekdayPreset
+    @State private var customWeekdays: Set<Int>
     @State private var points: Int
     @State private var selectedCategory: Category?
     @State private var showingDeleteConfirm = false
@@ -31,9 +34,19 @@ struct TaskEditorView: View {
         _dueDate = State(initialValue: CalendarDay.startOfDay(task?.dueDate ?? defaultDueDate))
         _reminderEnabled = State(initialValue: task?.reminderAt != nil)
         _reminderTime = State(initialValue: task?.reminderAt ?? CalendarDay.combining(day: task?.dueDate ?? defaultDueDate, time: Self.defaultReminderTime))
-        let interval = RepeatPolicy.normalizedInterval(task?.repeatIntervalDays)
-        _repeatEnabled = State(initialValue: interval != nil)
-        _repeatDays = State(initialValue: interval ?? 1)
+        let rule = task?.recurrence
+        _repeatEnabled = State(initialValue: rule != nil)
+        _repeatKind = State(initialValue: EditorRepeatKind(rule: rule))
+        _repeatDays = State(initialValue: {
+            if case .everyNDays(let days) = rule { return days }
+            return RepeatPolicy.normalizedInterval(task?.repeatIntervalDays) ?? 1
+        }())
+        let preset = WeekdayPreset(rule: rule)
+        _weekdayPreset = State(initialValue: preset)
+        _customWeekdays = State(initialValue: {
+            if case .weekdays(let days) = rule, preset == .custom { return days }
+            return [Calendar.current.component(.weekday, from: task?.dueDate ?? defaultDueDate)]
+        }())
         _points = State(initialValue: ScorePolicy.normalizedPoints(task?.points ?? ScorePolicy.defaultPoints))
         _selectedCategory = State(initialValue: task?.category)
     }
@@ -293,16 +306,21 @@ struct TaskEditorView: View {
                     .foregroundStyle(LunaTheme.highlight)
             }
             .tint(LunaTheme.secondary)
-            .accessibilityHint("Repeat this task every N days after you complete it.")
+            .accessibilityHint("Repeat this task after you complete it.")
 
             if repeatEnabled {
-                Stepper(value: $repeatDays, in: RepeatPolicy.minimumIntervalDays...RepeatPolicy.maximumIntervalDays) {
-                    Text(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
-                        .foregroundStyle(LunaTheme.highlight)
+                Picker("Repeat type", selection: $repeatKind) {
+                    ForEach(EditorRepeatKind.allCases) { kind in
+                        Text(kind.title).tag(kind)
+                    }
                 }
-                .accessibilityLabel(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
+                .pickerStyle(.menu)
+                .tint(LunaTheme.highlight)
+                .accessibilityLabel("Repeat type")
 
-                Text("When you complete this task, Luna keeps it here and adds the next copy \(repeatDays == 1 ? "tomorrow" : "in \(repeatDays) days").")
+                repeatKindControls
+
+                Text(repeatKind.footnote(repeatDays: repeatDays))
                     .font(.footnote)
                     .foregroundStyle(LunaTheme.secondary)
             }
@@ -314,6 +332,60 @@ struct TaskEditorView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(LunaTheme.border.opacity(0.45), lineWidth: 1)
         }
+    }
+
+    @ViewBuilder
+    private var repeatKindControls: some View {
+        switch repeatKind {
+        case .everyNDays:
+            Stepper(value: $repeatDays, in: RepeatPolicy.minimumIntervalDays...RepeatPolicy.maximumIntervalDays) {
+                Text(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
+                    .foregroundStyle(LunaTheme.highlight)
+            }
+            .accessibilityLabel(RepeatPolicy.summaryLabel(intervalDays: repeatDays))
+        case .weekdays:
+            Picker("Weekdays", selection: $weekdayPreset) {
+                Text("Monday–Friday").tag(WeekdayPreset.weekdays)
+                Text("Weekends").tag(WeekdayPreset.weekends)
+                Text("Custom").tag(WeekdayPreset.custom)
+            }
+            .pickerStyle(.menu)
+            .tint(LunaTheme.highlight)
+            .accessibilityLabel("Weekday pattern")
+
+            if weekdayPreset == .custom {
+                weekdaySelector
+            }
+        case .weekly, .monthly, .yearly:
+            EmptyView()
+        }
+    }
+
+    private var weekdaySelector: some View {
+        HStack(spacing: 6) {
+            ForEach(orderedWeekdays, id: \.self) { weekday in
+                let selected = customWeekdays.contains(weekday)
+                Button {
+                    if selected {
+                        customWeekdays.remove(weekday)
+                    } else {
+                        customWeekdays.insert(weekday)
+                    }
+                } label: {
+                    Text(shortWeekdaySymbol(weekday))
+                        .font(.caption.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .foregroundStyle(selected ? LunaTheme.background : LunaTheme.highlight)
+                        .background(selected ? LunaTheme.highlight : LunaTheme.background.opacity(0.4), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(weekdayAccessibilityName(weekday))
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Custom weekdays")
     }
 
     private func editorField<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -337,18 +409,85 @@ struct TaskEditorView: View {
 
     private func save() async {
         let reminderAt = reminderEnabled ? composedReminder : nil
-        let interval = repeatEnabled ? repeatDays : nil
         _ = await TaskService(context: modelContext, scheduler: scheduler).save(
             existing: task,
             title: title,
             notes: notes,
             dueDate: dueDate,
             reminderAt: reminderAt,
-            repeatIntervalDays: interval,
+            recurrence: composedRecurrence(),
             points: points,
             category: selectedCategory
         )
         dismiss()
+    }
+
+    private func composedRecurrence() -> RecurrenceRule? {
+        guard repeatEnabled else { return nil }
+        switch repeatKind {
+        case .everyNDays:
+            return .everyNDays(repeatDays)
+        case .weekdays:
+            return .weekdays(selectedWeekdays)
+        case .weekly:
+            return .weekly
+        case .monthly:
+            return .monthly(dayOfMonth: preservedMonthDay)
+        case .yearly:
+            return .yearly(month: preservedYearMonth.month, day: preservedYearMonth.day)
+        }
+    }
+
+    private var selectedWeekdays: Set<Int> {
+        switch weekdayPreset {
+        case .weekdays:
+            return RepeatPolicy.mondayThroughFriday
+        case .weekends:
+            return RepeatPolicy.weekendDays
+        case .custom:
+            if customWeekdays.isEmpty {
+                return [Calendar.current.component(.weekday, from: dueDate)]
+            }
+            return customWeekdays
+        }
+    }
+
+    private var preservedMonthDay: Int {
+        if let existing = task?.recurrence,
+           case .monthly(let stored) = existing,
+           CalendarDay.isSameDay(dueDate, task?.dueDate ?? dueDate) {
+            return stored
+        }
+        return Calendar.current.component(.day, from: dueDate)
+    }
+
+    private var preservedYearMonth: (month: Int, day: Int) {
+        if let existing = task?.recurrence,
+           case .yearly(let month, let day) = existing,
+           CalendarDay.isSameDay(dueDate, task?.dueDate ?? dueDate) {
+            return (month, day)
+        }
+        let parts = Calendar.current.dateComponents([.month, .day], from: dueDate)
+        return (parts.month ?? 1, parts.day ?? 1)
+    }
+
+    private var orderedWeekdays: [Int] {
+        let first = Calendar.current.firstWeekday
+        return (0..<7).map { ((first - 1 + $0) % 7) + 1 }
+    }
+
+    private func shortWeekdaySymbol(_ weekday: Int) -> String {
+        let symbols = ["", "S", "M", "T", "W", "T", "F", "S"]
+        return (1...7).contains(weekday) ? symbols[weekday] : ""
+    }
+
+    private func weekdayAccessibilityName(_ weekday: Int) -> String {
+        var calendar = Calendar.current
+        calendar.locale = .current
+        let symbols = calendar.weekdaySymbols
+        let index = weekday - 1
+        guard symbols.indices.contains(index) else { return "Weekday" }
+        return symbols[index]
     }
 
     private func deleteTask() async {
@@ -373,4 +512,78 @@ struct TaskEditorView: View {
 private struct CategoryEditorSession: Identifiable {
     let id = UUID()
     let category: Category?
+}
+
+private enum EditorRepeatKind: String, CaseIterable, Identifiable {
+    case everyNDays
+    case weekdays
+    case weekly
+    case monthly
+    case yearly
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .everyNDays: return "Every N days"
+        case .weekdays: return "Specific weekdays"
+        case .weekly: return "Weekly"
+        case .monthly: return "Monthly"
+        case .yearly: return "Yearly"
+        }
+    }
+
+    init(rule: RecurrenceRule?) {
+        switch rule {
+        case .weekdays:
+            self = .weekdays
+        case .weekly:
+            self = .weekly
+        case .monthly:
+            self = .monthly
+        case .yearly:
+            self = .yearly
+        default:
+            self = .everyNDays
+        }
+    }
+
+    func footnote(repeatDays: Int) -> String {
+        let spawn = "When you complete this task, Luna keeps it here and adds the next copy"
+        switch self {
+        case .everyNDays:
+            let when = repeatDays == 1 ? "tomorrow" : "in \(repeatDays) days"
+            return "\(spawn) \(when)."
+        case .weekdays:
+            return "\(spawn) on the next selected weekday."
+        case .weekly:
+            return "\(spawn) next week on the same weekday."
+        case .monthly:
+            return "\(spawn) next month on the same day, or the last day of that month."
+        case .yearly:
+            return "\(spawn) next year on the same date."
+        }
+    }
+}
+
+private enum WeekdayPreset: String, CaseIterable, Identifiable {
+    case weekdays
+    case weekends
+    case custom
+
+    var id: String { rawValue }
+
+    init(rule: RecurrenceRule?) {
+        guard case .weekdays(let days) = rule else {
+            self = .weekdays
+            return
+        }
+        if days == RepeatPolicy.mondayThroughFriday {
+            self = .weekdays
+        } else if days == RepeatPolicy.weekendDays {
+            self = .weekends
+        } else {
+            self = .custom
+        }
+    }
 }

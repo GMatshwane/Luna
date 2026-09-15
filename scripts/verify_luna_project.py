@@ -163,6 +163,9 @@ def main() -> int:
     ok("category: Category?" in service, "TaskService save must accept a category")
     ok("saveCategory" in service, "TaskService must persist user-defined categories")
     ok("repeatIntervalDays" in service, "TaskService must keep every-N-days repeatIntervalDays")
+    ok("recurrence: next.rule" in service, "next occurrence must copy RecurrenceRule")
+    ok("rulesMatch" in service, "spawn must dedupe by title + rule + due day")
+    ok("rule: task.recurrence" in service, "complete must spawn from RecurrenceRule")
 
     score_policy = read(ROOT / "Luna/Scores/ScorePolicy.swift")
     ok("defaultPoints = 1" in score_policy, "default task points should be 1")
@@ -183,7 +186,13 @@ def main() -> int:
     ok("openSettingsURLString" in editor, "denied-state Settings link missing")
     ok("Delete task" in editor, "editor delete missing")
     ok("repeatEnabled" in editor and "Repeat" in editor, "editor Repeat control missing")
-    ok("repeatIntervalDays:" in editor, "editor must persist repeat interval")
+    ok("recurrence:" in editor or "composedRecurrence" in editor, "editor must persist RecurrenceRule")
+    ok("Every N days" in editor, "every-N-days picker label missing")
+    ok("Specific weekdays" in editor, "weekday picker label missing")
+    ok("Weekly" in editor, "weekly picker label missing")
+    ok("Monthly" in editor, "monthly picker label missing")
+    ok("Yearly" in editor, "yearly picker label missing")
+    ok("Monday–Friday" in editor or "Monday-Friday" in editor, "weekday preset missing")
     ok("points:" in editor and "Points" in editor, "editor points control missing")
     ok("selectedCategory" in editor and "CATEGORY" in editor, "editor category picker missing")
     ok("New category" in editor, "editor must create user-defined categories")
@@ -238,25 +247,57 @@ def main() -> int:
     ok(should_schedule(20, False, 20) is False, "policy replica: now")
     ok(should_schedule(21, False, 20) is True, "policy replica: future")
 
+    from datetime import date, timedelta
+    import calendar as pycal
+
     def normalized_interval(days):
         if days is None or days < 1:
             return None
         return min(days, 365)
 
-    def should_spawn(was_completed, is_completed, interval_days):
-        return is_completed and not was_completed and normalized_interval(interval_days) is not None
+    def should_spawn(was_completed, is_completed, rule_present):
+        return is_completed and not was_completed and rule_present
+
+    def swift_weekday(d):
+        return d.isoweekday() % 7 + 1
+
+    def next_weekdays(d, days):
+        cur = d
+        for _ in range(7):
+            cur = cur + timedelta(days=1)
+            if swift_weekday(cur) in days:
+                return cur
+        return None
+
+    def next_monthly(d, month_day):
+        if d.month == 12:
+            year, month = d.year + 1, 1
+        else:
+            year, month = d.year, d.month + 1
+        last = pycal.monthrange(year, month)[1]
+        return date(year, month, min(max(month_day, 1), last))
+
+    def next_yearly(d, month, day):
+        year = d.year + 1
+        last = pycal.monthrange(year, month)[1]
+        return date(year, month, min(max(day, 1), last))
 
     def next_due(year, month, day, n):
-        from datetime import date, timedelta
         return date(year, month, day) + timedelta(days=n)
 
     ok(normalized_interval(None) is None, "repeat replica: nil interval")
     ok(normalized_interval(0) is None, "repeat replica: zero interval")
     ok(normalized_interval(3) == 3, "repeat replica: valid interval")
-    ok(should_spawn(False, True, 3) is True, "repeat replica: spawn on complete")
-    ok(should_spawn(True, True, 3) is False, "repeat replica: no spawn if already complete")
-    ok(should_spawn(False, True, None) is False, "repeat replica: no spawn without interval")
-    ok(next_due(2026, 9, 14, 3) == __import__("datetime").date(2026, 9, 17), "repeat replica: due date + N days")
+    ok(should_spawn(False, True, True) is True, "repeat replica: spawn on complete")
+    ok(should_spawn(True, True, True) is False, "repeat replica: no spawn if already complete")
+    ok(should_spawn(False, True, False) is False, "repeat replica: no spawn without rule")
+    ok(next_due(2026, 9, 14, 3) == date(2026, 9, 17), "repeat replica: due date + N days")
+    ok(next_weekdays(date(2026, 9, 18), {2, 3, 4, 5, 6}) == date(2026, 9, 21), "repeat replica: Friday weekday -> Monday")
+    ok(next_weekdays(date(2026, 9, 19), {1, 7}) == date(2026, 9, 20), "repeat replica: Saturday weekend -> Sunday")
+    ok(next_due(2026, 9, 17, 7) == date(2026, 9, 24), "repeat replica: weekly +7 days")
+    ok(next_monthly(date(2026, 1, 31), 31) == date(2026, 2, 28), "repeat replica: Jan 31 clamps to Feb 28")
+    ok(next_monthly(date(2026, 2, 28), 31) == date(2026, 3, 31), "repeat replica: preserved 31 after clamp")
+    ok(next_yearly(date(2024, 2, 29), 2, 29) == date(2025, 2, 28), "repeat replica: leap day clamps")
 
     def normalized_points(points):
         return min(max(points, 1), 99)
@@ -349,7 +390,10 @@ def main() -> int:
     spec = read(ROOT / "docs/superpowers/specs/2026-09-14-luna-task-reminder-design.md").lower()
     ok("repeatintervaldays" in spec, "design spec missing repeatIntervalDays")
     ok("every n days" in spec, "design spec missing every-N-days behavior")
-    ok("rrule" in spec, "design spec should keep RRULE/monthly recurrence out of v1")
+    ok("recurrencerule" in spec, "design spec missing RecurrenceRule")
+    ok("weekdays" in spec, "design spec missing weekday recurrence")
+    ok("clamped to the last day" in spec, "design spec missing month-end clamp")
+    ok("rrule" in spec, "design spec should skip RRULE parsing")
     ok("daily point goal" in spec or "dailypointgoal" in spec, "design spec missing daily point goal")
     ok("streaks" in spec, "design spec should mention no streaks")
     ok("taskitem.category" in spec or "optional category" in spec, "design spec missing one optional category")

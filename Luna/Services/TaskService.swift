@@ -12,13 +12,14 @@ struct TaskService {
         notes: String?,
         dueDate: Date,
         reminderAt: Date?,
-        repeatIntervalDays: Int?,
+        repeatIntervalDays: Int? = nil,
+        recurrence: RecurrenceRule? = nil,
         points: Int,
         category: Category?
     ) async -> TaskItem? {
         let trimmedTitle = TaskItem.normalizedTitle(title)
         guard !trimmedTitle.isEmpty else { return nil }
-        let interval = RepeatPolicy.normalizedInterval(repeatIntervalDays)
+        let rule = RepeatPolicy.normalized(recurrence) ?? RepeatPolicy.normalized(.everyNDays(repeatIntervalDays ?? 0))
         let pointValue = ScorePolicy.normalizedPoints(points)
 
         let task: TaskItem
@@ -28,7 +29,7 @@ struct TaskService {
             task.notes = TaskItem.normalizedNotes(notes)
             task.dueDate = CalendarDay.startOfDay(dueDate)
             task.reminderAt = reminderAt
-            task.repeatIntervalDays = interval
+            task.recurrence = rule
             task.points = pointValue
             task.category = category
         } else {
@@ -38,7 +39,7 @@ struct TaskService {
                 dueDate: dueDate,
                 reminderAt: reminderAt,
                 sortOrder: nextSortOrder(for: CalendarDay.startOfDay(dueDate)),
-                repeatIntervalDays: interval,
+                recurrence: rule,
                 points: pointValue,
                 category: category
             )
@@ -59,7 +60,7 @@ struct TaskService {
         if RepeatPolicy.shouldSpawnNext(
             wasCompleted: wasCompleted,
             isCompleted: task.isCompleted,
-            intervalDays: task.repeatIntervalDays
+            rule: task.recurrence
         ) {
             await spawnNextOccurrence(from: task)
         }
@@ -120,7 +121,7 @@ struct TaskService {
         guard let next = RepeatPolicy.nextOccurrence(
             dueDate: task.dueDate,
             reminderAt: task.reminderAt,
-            intervalDays: task.repeatIntervalDays
+            rule: task.recurrence
         ) else {
             return
         }
@@ -128,7 +129,7 @@ struct TaskService {
         if hasIncompleteOccurrence(
             title: task.title,
             dueDate: next.dueDate,
-            intervalDays: next.intervalDays
+            rule: next.rule
         ) {
             return
         }
@@ -139,7 +140,7 @@ struct TaskService {
             dueDate: next.dueDate,
             reminderAt: next.reminderAt,
             sortOrder: nextSortOrder(for: next.dueDate),
-            repeatIntervalDays: next.intervalDays,
+            recurrence: next.rule,
             points: task.points,
             category: task.category
         )
@@ -148,7 +149,7 @@ struct TaskService {
         await sync(spawned)
     }
 
-    private func hasIncompleteOccurrence(title: String, dueDate: Date, intervalDays: Int) -> Bool {
+    private func hasIncompleteOccurrence(title: String, dueDate: Date, rule: RecurrenceRule) -> Bool {
         let range = CalendarDay.range(containing: dueDate)
         let start = range.start
         let end = range.end
@@ -158,7 +159,7 @@ struct TaskService {
             }
         )
         let matches = (try? context.fetch(descriptor)) ?? []
-        return matches.contains { RepeatPolicy.normalizedInterval($0.repeatIntervalDays) == intervalDays }
+        return matches.contains { RepeatPolicy.rulesMatch($0.recurrence, rule) }
     }
 
     private func persist() {
