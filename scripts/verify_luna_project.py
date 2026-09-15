@@ -34,6 +34,8 @@ def main() -> int:
         "Luna/Calendar/CalendarDay.swift",
         "Luna/Calendar/TaskListOrdering.swift",
         "Luna/Calendar/RepeatPolicy.swift",
+        "Luna/Models/CategoryPolicy.swift",
+        "Luna/Models/Category.swift",
         "Luna/Scores/ScorePolicy.swift",
         "Luna/Settings/LunaSettings.swift",
         "Luna/Notifications/ReminderPolicy.swift",
@@ -48,6 +50,7 @@ def main() -> int:
         "Luna/Views/TaskRowView.swift",
         "Luna/Views/EmptyDayView.swift",
         "Luna/Views/TaskEditorView.swift",
+        "Luna/Views/CategoryEditorView.swift",
         "Luna/Views/SettingsView.swift",
         "Luna/Views/ScoreCardView.swift",
         "Luna/Assets.xcassets/Contents.json",
@@ -58,6 +61,7 @@ def main() -> int:
         "LunaTests/ReminderPolicyTests.swift",
         "LunaTests/RepeatPolicyTests.swift",
         "LunaTests/ScorePolicyTests.swift",
+        "LunaTests/CategoryPolicyTests.swift",
     ]
     for rel in required:
         ok((ROOT / rel).is_file(), f"missing {rel}")
@@ -79,12 +83,26 @@ def main() -> int:
         ok(hex_color in theme, f"LunaTheme missing {hex_color}")
 
     model = read(ROOT / "Luna/Models/TaskItem.swift")
-    for field in ("id: UUID", "title: String", "notes: String?", "dueDate: Date", "reminderAt: Date?", "isCompleted: Bool", "createdAt: Date", "sortOrder: Int", "repeatIntervalDays: Int?", "points: Int"):
+    for field in ("id: UUID", "title: String", "notes: String?", "dueDate: Date", "reminderAt: Date?", "isCompleted: Bool", "createdAt: Date", "sortOrder: Int", "repeatIntervalDays: Int?", "points: Int", "category: Category?"):
         ok(field in model, f"TaskItem missing {field}")
     ok("@Model" in model, "TaskItem is not a SwiftData @Model")
     ok("CalendarDay.startOfDay" in model, "TaskItem should normalize dueDate")
     ok("RepeatPolicy.normalizedInterval" in model, "TaskItem should normalize repeat interval")
     ok("ScorePolicy.normalizedPoints" in model, "TaskItem should normalize points")
+
+    category_model = read(ROOT / "Luna/Models/Category.swift")
+    ok("@Model" in category_model, "Category is not a SwiftData @Model")
+    ok("var name: String" in category_model, "Category missing name")
+    ok("colorHex: String?" in category_model, "Category missing optional color")
+    ok("deleteRule: .nullify" in category_model, "deleting a category should uncategorize tasks")
+    ok("inverse: \\TaskItem.category" in category_model, "Category.tasks should inverse TaskItem.category")
+
+    category_policy = read(ROOT / "Luna/Models/CategoryPolicy.swift")
+    ok("normalizedName" in category_policy, "CategoryPolicy.normalizedName missing")
+    ok("normalizedColorHex" in category_policy, "CategoryPolicy.normalizedColorHex missing")
+    ok("uncategorizedName" in category_policy, "CategoryPolicy.uncategorizedName missing")
+    ok("func grouped" in category_policy, "CategoryPolicy.grouped missing")
+    ok("enum Filter" in category_policy, "CategoryPolicy.Filter missing")
 
     repeat_policy = read(ROOT / "Luna/Calendar/RepeatPolicy.swift")
     ok("shouldSpawnNext" in repeat_policy, "RepeatPolicy.shouldSpawnNext missing")
@@ -112,7 +130,11 @@ def main() -> int:
     ok("spawnNextOccurrence" in service, "complete must spawn the next repeating occurrence")
     ok("shouldSpawnNext" in service, "complete must consult RepeatPolicy before spawning")
     ok("points: task.points" in service or "points: pointValue" in service, "next occurrence must copy points")
+    ok("category: task.category" in service, "next occurrence must copy category")
     ok("points: Int" in service, "TaskService save must accept points")
+    ok("category: Category?" in service, "TaskService save must accept a category")
+    ok("saveCategory" in service, "TaskService must persist user-defined categories")
+    ok("repeatIntervalDays" in service, "TaskService must keep every-N-days repeatIntervalDays")
 
     score_policy = read(ROOT / "Luna/Scores/ScorePolicy.swift")
     ok("defaultPoints = 1" in score_policy, "default task points should be 1")
@@ -135,6 +157,15 @@ def main() -> int:
     ok("repeatEnabled" in editor and "Repeat" in editor, "editor Repeat control missing")
     ok("repeatIntervalDays:" in editor, "editor must persist repeat interval")
     ok("points:" in editor and "Points" in editor, "editor points control missing")
+    ok("selectedCategory" in editor and "CATEGORY" in editor, "editor category picker missing")
+    ok("New category" in editor, "editor must create user-defined categories")
+    ok("category: selectedCategory" in editor, "editor must persist the assigned category")
+
+    category_editor = read(ROOT / "Luna/Views/CategoryEditorView.swift")
+    ok("NAME" in category_editor, "category editor name field missing")
+    ok("COLOR" in category_editor, "category editor optional color missing")
+    ok("saveCategory" in category_editor, "category editor must persist through TaskService")
+    ok("Delete category" in category_editor, "category editor delete missing")
 
     settings = read(ROOT / "Luna/Views/SettingsView.swift")
     ok("authorizationStatus" in settings, "settings permission status missing")
@@ -149,10 +180,15 @@ def main() -> int:
     ok("TaskListOrdering.sorted" in day_list, "list sort missing")
     ok("ScoreCardView" in day_list, "day header score card missing")
     ok("earnedPoints" in day_list, "day score aggregation missing")
+    ok("ScorePolicy.earnedPoints(from: tasks" in day_list, "daily score must stay a single unfiltered day total")
+    ok("CategoryPolicy.grouped" in day_list, "day list should section by category")
+    ok("Uncategorized" in day_list or "uncategorizedName" in day_list, "day list must include uncategorized")
+    ok("categoryFilter" in day_list, "day list should filter by category")
 
     persistence = read(ROOT / "Luna/Persistence/LunaPersistence.swift")
     ok("isStoredInMemoryOnly" in persistence, "in-memory configuration missing")
     ok("CloudKit" not in persistence, "persistence must not use CloudKit")
+    ok("Category.self" in persistence, "schema must include Category")
 
     app = read(ROOT / "Luna/LunaApp.swift")
     ok("preferredColorScheme" in app or "lunaScreen()" in app, "dark preference missing at app root")
@@ -216,12 +252,81 @@ def main() -> int:
     ok(progress(12, 10) == 1.0, "score replica: bar caps at 100%")
     ok(f"{12} / {10}" == "12 / 10", "score replica: overflow label")
 
+    def normalized_category_name(name):
+        trimmed = name.strip()
+        if not trimmed:
+            return None
+        return trimmed[:40]
+
+    def names_match(lhs, rhs):
+        a = normalized_category_name(lhs)
+        b = normalized_category_name(rhs)
+        return a is not None and b is not None and a.lower() == b.lower()
+
+    def normalized_color_hex(hex_value):
+        if hex_value is None:
+            return None
+        trimmed = hex_value.strip().lstrip("#").upper()
+        if len(trimmed) != 6 or any(ch not in "0123456789ABCDEF" for ch in trimmed):
+            return None
+        return trimmed
+
+    health = "health-id"
+    home = "home-id"
+    rows = [
+        {"title": "Unsorted", "category_id": None, "name": None, "color": None, "order": 2},
+        {"title": "Water plants", "category_id": home, "name": "Home", "color": "#d4a373", "order": 1},
+        {"title": "Stretch", "category_id": health, "name": "Health", "color": "c97b84", "order": 0},
+        {"title": "Walk", "category_id": health, "name": "Health", "color": "c97b84", "order": 1},
+    ]
+
+    def grouped(items, filt="all"):
+        filtered = []
+        for item in items:
+            cid = item["category_id"]
+            if filt == "all":
+                filtered.append(item)
+            elif filt == "uncategorized" and cid is None:
+                filtered.append(item)
+            elif filt == cid:
+                filtered.append(item)
+        filtered.sort(key=lambda item: (item["category_id"] is None, (item["name"] or "Uncategorized").lower(), item["order"]))
+        sections = []
+        seen = {}
+        for item in filtered:
+            key = item["category_id"]
+            if key not in seen:
+                seen[key] = {
+                    "name": "Uncategorized" if key is None else item["name"],
+                    "color": None if key is None else normalized_color_hex(item["color"]),
+                    "tasks": [],
+                }
+                sections.append(key)
+            seen[key]["tasks"].append(item["title"])
+        named = [key for key in sections if key is not None]
+        named.sort(key=lambda key: seen[key]["name"].lower())
+        ordered_keys = named + ([None] if None in seen else [])
+        return [(seen[key]["name"], seen[key]["color"], seen[key]["tasks"]) for key in ordered_keys]
+
+    ok(normalized_category_name("  Health  ") == "Health", "category replica: trim name")
+    ok(normalized_category_name("   ") is None, "category replica: reject blank name")
+    ok(names_match("Health", "health") is True, "category replica: case-insensitive names")
+    ok(normalized_color_hex("#c97b84") == "C97B84", "category replica: color hash")
+    ok(normalized_color_hex("zzz") is None, "category replica: invalid color")
+    ok(grouped(rows)[0] == ("Health", "C97B84", ["Stretch", "Walk"]), "category replica: named section first")
+    ok(grouped(rows)[-1][0] == "Uncategorized", "category replica: uncategorized last")
+    ok(grouped(rows, health)[0][2] == ["Stretch", "Walk"], "category replica: filter identified")
+    ok(sum(1 for item in rows if True) == 4, "category replica: day score still counts every task")
+
     spec = read(ROOT / "docs/superpowers/specs/2026-09-14-luna-task-reminder-design.md").lower()
     ok("repeatintervaldays" in spec, "design spec missing repeatIntervalDays")
     ok("every n days" in spec, "design spec missing every-N-days behavior")
     ok("rrule" in spec, "design spec should keep RRULE/monthly recurrence out of v1")
     ok("daily point goal" in spec or "dailypointgoal" in spec, "design spec missing daily point goal")
     ok("streaks" in spec, "design spec should mention no streaks")
+    ok("taskitem.category" in spec or "optional category" in spec, "design spec missing one optional category")
+    ok("uncategorized" in spec, "design spec should mention uncategorized tasks")
+    ok("single day total" in spec or "not split by category" in spec, "design spec should keep score as one day total")
 
     for swift in list((ROOT / "Luna").rglob("*.swift")) + list((ROOT / "LunaTests").rglob("*.swift")):
         source = swift.read_text(encoding="utf-8")

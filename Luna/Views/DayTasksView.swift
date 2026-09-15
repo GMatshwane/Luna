@@ -28,6 +28,8 @@ private struct DayTaskList: View {
     var onSelect: (TaskItem) -> Void
 
     @Query private var tasks: [TaskItem]
+    @Query(sort: \Category.name) private var categories: [Category]
+    @State private var categoryFilter: CategoryPolicy.Filter = .all
 
     init(
         dayStart: Date,
@@ -57,6 +59,25 @@ private struct DayTaskList: View {
         ScorePolicy.earnedPoints(from: tasks, points: { $0.points }, isCompleted: { $0.isCompleted })
     }
 
+    private var orderedCategories: [Category] {
+        categories.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private var visibleSections: [CategoryPolicy.Section<TaskItem>] {
+        CategoryPolicy.grouped(
+            tasks,
+            filter: categoryFilter,
+            categoryID: { $0.category?.id },
+            categoryName: { $0.category?.name },
+            colorHex: { $0.category?.colorHex },
+            sortKey: { $0.sortKey }
+        )
+    }
+
+    private var showsCategorySections: Bool {
+        CategoryPolicy.shouldShowSections(tasks, categoryID: { $0.category?.id })
+    }
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             VStack(spacing: 0) {
@@ -71,23 +92,35 @@ private struct DayTaskList: View {
                 if orderedTasks.isEmpty {
                     EmptyDayView(isToday: CalendarDay.isSameDay(selectedDate, Date()), onAdd: onAdd)
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(orderedTasks, id: \.id) { task in
-                                TaskRowView(
-                                    task: task,
-                                    onToggle: {
-                                        Task { await TaskService(context: modelContext, scheduler: scheduler).toggleCompleted(task) }
-                                    },
-                                    onOpen: { onSelect(task) }
-                                )
-                            }
+                    VStack(spacing: 0) {
+                        if !categories.isEmpty {
+                            categoryFilterBar
+                                .padding(.bottom, 8)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                        .padding(.bottom, 96)
+
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: 12) {
+                                if visibleSections.isEmpty {
+                                    emptyFilterMessage
+                                } else if showsCategorySections || categoryFilter != .all {
+                                    ForEach(visibleSections, id: \.categoryID) { section in
+                                        sectionHeader(section)
+                                        ForEach(section.tasks, id: \.id) { task in
+                                            taskRow(task)
+                                        }
+                                    }
+                                } else {
+                                    ForEach(orderedTasks, id: \.id) { task in
+                                        taskRow(task)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 8)
+                            .padding(.bottom, 96)
+                        }
+                        .scrollIndicators(.hidden)
                     }
-                    .scrollIndicators(.hidden)
                 }
             }
 
@@ -106,6 +139,95 @@ private struct DayTaskList: View {
         .background(LunaTheme.background.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: categories.map(\.id)) { _, ids in
+            if case .identified(let id) = categoryFilter, !ids.contains(id) {
+                categoryFilter = .all
+            }
+        }
+    }
+
+    private func taskRow(_ task: TaskItem) -> some View {
+        TaskRowView(
+            task: task,
+            onToggle: {
+                Task { await TaskService(context: modelContext, scheduler: scheduler).toggleCompleted(task) }
+            },
+            onOpen: { onSelect(task) }
+        )
+    }
+
+    private func sectionHeader(_ section: CategoryPolicy.Section<TaskItem>) -> some View {
+        HStack(spacing: 8) {
+            if section.colorHex != nil {
+                CategoryColorDot(hex: section.colorHex)
+            }
+            Text(section.name.uppercased())
+                .font(.caption.weight(.semibold))
+                .tracking(1.2)
+                .foregroundStyle(LunaTheme.secondary)
+            Spacer()
+        }
+        .padding(.top, 8)
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    private var emptyFilterMessage: some View {
+        Text("No tasks in this category.")
+            .font(.subheadline)
+            .foregroundStyle(LunaTheme.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 12)
+    }
+
+    private var categoryFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                filterChip(title: "All", hex: nil, isSelected: categoryFilter == .all) {
+                    categoryFilter = .all
+                }
+                ForEach(orderedCategories, id: \.id) { category in
+                    filterChip(
+                        title: category.name,
+                        hex: category.colorHex,
+                        isSelected: {
+                            if case .identified(let id) = categoryFilter { return id == category.id }
+                            return false
+                        }()
+                    ) {
+                        categoryFilter = .identified(category.id)
+                    }
+                }
+                filterChip(
+                    title: CategoryPolicy.uncategorizedName,
+                    hex: nil,
+                    isSelected: categoryFilter == .uncategorized
+                ) {
+                    categoryFilter = .uncategorized
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    private func filterChip(title: String, hex: String?, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if hex != nil {
+                    CategoryColorDot(hex: hex, size: 8)
+                }
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(isSelected ? LunaTheme.background : LunaTheme.highlight)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? LunaTheme.highlight : LunaTheme.surface, in: Capsule())
+            .overlay {
+                Capsule().stroke(LunaTheme.border.opacity(isSelected ? 0 : 0.45), lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var header: some View {

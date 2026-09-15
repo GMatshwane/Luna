@@ -17,10 +17,15 @@ struct TaskRowView: View {
             .accessibilityLabel(task.isCompleted ? "Mark \(task.title) incomplete" : "Mark \(task.title) complete")
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(task.isCompleted ? LunaTheme.secondary : LunaTheme.highlight)
-                    .strikethrough(task.isCompleted, color: LunaTheme.secondary)
+                HStack(spacing: 8) {
+                    if task.category?.colorHex != nil {
+                        CategoryColorDot(hex: task.category?.colorHex)
+                    }
+                    Text(task.title)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(task.isCompleted ? LunaTheme.secondary : LunaTheme.highlight)
+                        .strikethrough(task.isCompleted, color: LunaTheme.secondary)
+                }
 
                 if let reminderAt = task.reminderAt {
                     Label(reminderAt.formatted(date: .omitted, time: .shortened), systemImage: "bell")
