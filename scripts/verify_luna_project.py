@@ -31,6 +31,13 @@ def main() -> int:
         "README.md",
         "Luna/LunaApp.swift",
         "Luna/Theme/LunaTheme.swift",
+        "Luna/Theme/LunaTypography.swift",
+        "Luna/Calendar/WeekdayAbbreviation.swift",
+        "Luna/Fonts/Roboto-Regular.ttf",
+        "Luna/Fonts/Roboto-Medium.ttf",
+        "Luna/Fonts/Roboto-SemiBold.ttf",
+        "Luna/Fonts/OFL.txt",
+        "Luna/Info.plist",
         "Luna/Calendar/CalendarDay.swift",
         "Luna/Calendar/TaskListOrdering.swift",
         "Luna/Calendar/RepeatPolicy.swift",
@@ -64,6 +71,8 @@ def main() -> int:
         "LunaTests/CategoryPolicyTests.swift",
         "LunaTests/LunaThemeTests.swift",
         "LunaTests/LunaSettingsTests.swift",
+        "LunaTests/WeekdayAbbreviationTests.swift",
+        "LunaTests/LunaTypographyTests.swift",
     ]
     for rel in required:
         ok((ROOT / rel).is_file(), f"missing {rel}")
@@ -87,6 +96,8 @@ def main() -> int:
         ok(hex_color in theme, f"LunaTheme missing light {hex_color}")
     ok("Palette" in theme, "LunaTheme should expose Palette snapshots")
     ok("preferredColorScheme(.dark)" not in theme, "lunaScreen must not force dark")
+    ok("Font.custom" not in theme, "LunaTheme must remain color tokens only")
+    ok("Roboto" not in theme, "do not put Roboto helpers in LunaTheme.swift")
 
     model = read(ROOT / "Luna/Models/TaskItem.swift")
     for field in (
@@ -454,6 +465,85 @@ def main() -> int:
         # signature(8) + length(4) + "IHDR"(4) + width(4) + height(4) + bitDepth(1) → color type at 25
         color_type = data[25]
         ok(color_type == 2, f"AppIcon.png must be opaque RGB (got color type {color_type})")
+
+    typography = read(ROOT / "Luna/Theme/LunaTypography.swift")
+    ok("Roboto-Regular" in typography, "LunaTypography missing Roboto-Regular")
+    ok("Roboto-Medium" in typography, "LunaTypography missing Roboto-Medium")
+    ok("Roboto-SemiBold" in typography, "LunaTypography missing Roboto-SemiBold")
+    ok("relativeTo:" in typography, "custom fonts must scale with Dynamic Type via relativeTo")
+    ok("monospacedDigit" in typography, "LunaTypography must expose tabular/monospaced digits")
+    ok("Font.custom" in typography, "LunaTypography should wrap Font.custom")
+
+    day_strip = read(ROOT / "Luna/Views/DayStripView.swift")
+    ok("WeekdayAbbreviation.compact" in day_strip, "DayStripView should use locale-aware 3-letter weekdays")
+    ok(".weekday(.narrow)" not in day_strip, "DayStripView must not use narrow single-letter weekdays")
+    ok(".weekday(.wide)" in day_strip, "DayStripView accessibility should keep full weekday names")
+    ok("LunaTypography.tabular" in day_strip, "day numbers should keep tabular/monospaced digits")
+    ok("LunaTypography." in day_strip, "DayStripView should use the shared Roboto helper")
+
+    day_list = read(ROOT / "Luna/Views/DayTasksView.swift")
+    ok(".weekday(.wide)" in day_list, "Today header should keep full weekday names")
+    ok("design: .serif" not in day_list, "Today header should not use serif system fonts")
+    ok("LunaTypography." in day_list, "Today header should use the shared Roboto helper")
+
+    empty = read(ROOT / "Luna/Views/EmptyDayView.swift")
+    ok("design: .serif" not in empty, "empty states should not use serif system fonts")
+    ok("LunaTypography." in empty, "empty states should use the shared Roboto helper")
+
+    score_card = read(ROOT / "Luna/Views/ScoreCardView.swift")
+    ok("LunaTypography.tabular" in score_card, "score digits should stay tabular/monospaced")
+
+    task_row = read(ROOT / "Luna/Views/TaskRowView.swift")
+    ok("LunaTypography.tabular" in task_row, "task point digits should stay tabular/monospaced")
+
+    for view in (
+        "SettingsView.swift",
+        "TaskEditorView.swift",
+        "CalendarSheet.swift",
+        "ScoreCardView.swift",
+        "TaskRowView.swift",
+        "CategoryEditorView.swift",
+    ):
+        source = read(ROOT / "Luna/Views" / view)
+        ok("LunaTypography." in source, f"{view} should use the shared Roboto helper")
+
+    for swift in (ROOT / "Luna").rglob("*.swift"):
+        source = swift.read_text(encoding="utf-8")
+        ok("design: .serif" not in source, f"{swift.relative_to(ROOT)} still uses serif system fonts")
+
+    weekday_helper = read(ROOT / "Luna/Calendar/WeekdayAbbreviation.swift")
+    ok("weekday(.abbreviated)" in weekday_helper, "compact weekdays should use locale-aware abbreviated style")
+    ok("Locale" in weekday_helper, "weekday abbreviations must be locale-aware")
+
+    import calendar as py_calendar
+    from datetime import date as py_date
+
+    def compact_weekday(value: py_date) -> str:
+        return py_calendar.day_abbr[value.weekday()]
+
+    ok(compact_weekday(py_date(2026, 9, 14)) == "Mon", "weekday replica: Monday")
+    ok(compact_weekday(py_date(2026, 9, 15)) == "Tue", "weekday replica: Tuesday")
+    ok(compact_weekday(py_date(2026, 9, 16)) == "Wed", "weekday replica: Wednesday")
+    ok(len(compact_weekday(py_date(2026, 9, 14))) == 3, "weekday replica: three letters")
+
+    info = read(ROOT / "Luna/Info.plist")
+    for font_file in ("Roboto-Regular.ttf", "Roboto-Medium.ttf", "Roboto-SemiBold.ttf"):
+        ok(font_file in info, f"Info.plist UIAppFonts missing {font_file}")
+        ok(font_file in pbx, f"{font_file} is not referenced in project.pbxproj")
+        font_path = ROOT / "Luna/Fonts" / font_file
+        if font_path.is_file():
+            header = font_path.read_bytes()[:4]
+            ok(header in {b"\x00\x01\x00\x00", b"OTTO", b"true", b"ttcf"}, f"{font_file} is not an sfnt font")
+            ok(len(font_path.read_bytes()) > 10_000, f"{font_file} looks too small to be Roboto")
+
+    ofl = read(ROOT / "Luna/Fonts/OFL.txt")
+    ok("SIL Open Font License" in ofl, "Roboto OFL license text missing")
+
+    generator = read(ROOT / "scripts/generate_xcode_project.py")
+    ok("Path(__file__)" in generator, "project generator ROOT must be repo-relative for worktrees")
+    ok("LunaTypography.swift" in generator, "generator must include LunaTypography.swift")
+    ok("WeekdayAbbreviation.swift" in generator, "generator must include WeekdayAbbreviation.swift")
+    ok("Roboto-Regular.ttf" in generator, "generator must include bundled Roboto files")
 
     if errors:
         print("verify_luna_project: FAILED")

@@ -13,7 +13,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("APPEARANCE")
-                        .font(.caption.weight(.semibold))
+                        .font(LunaTypography.font(.caption, weight: .semibold))
                         .tracking(1.2)
                         .foregroundStyle(LunaTheme.secondary)
 
@@ -27,7 +27,7 @@ struct SettingsView: View {
                     .accessibilityLabel("Appearance")
 
                     Text("System follows this iPhone. Light and Dark stay until you change them.")
-                        .font(.subheadline)
+                        .font(LunaTypography.font(.subheadline))
                         .foregroundStyle(LunaTheme.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -41,19 +41,19 @@ struct SettingsView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("DAILY GOAL")
-                        .font(.caption.weight(.semibold))
+                        .font(LunaTypography.font(.caption, weight: .semibold))
                         .tracking(1.2)
                         .foregroundStyle(LunaTheme.secondary)
 
                     Stepper(value: $settings.dailyPointGoal, in: ScorePolicy.minimumDailyGoal...ScorePolicy.maximumDailyGoal) {
                         Text("\(settings.dailyPointGoal) points")
-                            .font(.title3.weight(.semibold))
+                            .font(LunaTypography.font(.title3, weight: .semibold))
                             .foregroundStyle(LunaTheme.highlight)
                     }
                     .accessibilityLabel("Daily goal \(settings.dailyPointGoal) points")
 
                     Text("Completing tasks adds their points toward this day’s goal.")
-                        .font(.subheadline)
+                        .font(LunaTypography.font(.subheadline))
                         .foregroundStyle(LunaTheme.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -67,16 +67,16 @@ struct SettingsView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("NOTIFICATIONS")
-                        .font(.caption.weight(.semibold))
+                        .font(LunaTypography.font(.caption, weight: .semibold))
                         .tracking(1.2)
                         .foregroundStyle(LunaTheme.secondary)
 
                     Text(statusTitle)
-                        .font(.title3.weight(.semibold))
+                        .font(LunaTypography.font(.title3, weight: .semibold))
                         .foregroundStyle(LunaTheme.highlight)
 
                     Text(statusDetail)
-                        .font(.subheadline)
+                        .font(LunaTypography.font(.subheadline))
                         .foregroundStyle(LunaTheme.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -84,7 +84,7 @@ struct SettingsView: View {
                         Button("Open Settings") {
                             openSystemSettings()
                         }
-                        .font(.headline)
+                        .font(LunaTypography.font(.headline, weight: .semibold))
                         .foregroundStyle(LunaTheme.background)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 10)
@@ -101,7 +101,7 @@ struct SettingsView: View {
                 }
 
                 Text("Luna keeps tasks and reminders on this device. There is no iCloud or Apple Reminders sync.")
-                    .font(.footnote)
+                    .font(LunaTypography.font(.footnote))
                     .foregroundStyle(LunaTheme.secondary)
 
                 Spacer()

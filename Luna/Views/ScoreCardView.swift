@@ -12,12 +12,12 @@ struct ScoreCardView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 Text("SCORE")
-                    .font(.caption.weight(.semibold))
+                    .font(LunaTypography.font(.caption, weight: .semibold))
                     .tracking(1.2)
                     .foregroundStyle(LunaTheme.secondary)
                 Spacer()
                 Text(score.label)
-                    .font(.title3.monospacedDigit().weight(.semibold))
+                    .font(LunaTypography.tabular(.title3, weight: .semibold))
                     .foregroundStyle(LunaTheme.highlight)
                     .accessibilityLabel("\(score.earned) of \(score.goal) points")
             }

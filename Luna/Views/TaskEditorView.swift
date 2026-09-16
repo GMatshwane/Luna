@@ -107,7 +107,7 @@ struct TaskEditorView: View {
                             showingDeleteConfirm = true
                         } label: {
                             Text("Delete task")
-                                .font(.headline)
+                                .font(LunaTypography.font(.headline, weight: .semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
                                 .foregroundStyle(LunaTheme.highlight)
@@ -163,7 +163,7 @@ struct TaskEditorView: View {
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("CATEGORY")
-                .font(.caption.weight(.semibold))
+                .font(LunaTypography.font(.caption, weight: .semibold))
                 .tracking(1.2)
                 .foregroundStyle(LunaTheme.secondary)
 
@@ -186,7 +186,7 @@ struct TaskEditorView: View {
                     categoryEditor = CategoryEditorSession(category: nil)
                 } label: {
                     Text("New category")
-                        .font(.subheadline.weight(.semibold))
+                        .font(LunaTypography.font(.subheadline, weight: .semibold))
                         .foregroundStyle(LunaTheme.highlight)
                 }
 
@@ -195,7 +195,7 @@ struct TaskEditorView: View {
                         categoryEditor = CategoryEditorSession(category: selectedCategory)
                     } label: {
                         Text("Edit")
-                            .font(.subheadline.weight(.semibold))
+                            .font(LunaTypography.font(.subheadline, weight: .semibold))
                             .foregroundStyle(LunaTheme.secondary)
                     }
                     .accessibilityLabel("Edit category")
@@ -266,7 +266,7 @@ struct TaskEditorView: View {
 
                 if reminderIsPast {
                     Text("This time is in the past, so Luna will not send an alert.")
-                        .font(.footnote)
+                        .font(LunaTypography.font(.footnote))
                         .foregroundStyle(LunaTheme.secondary)
                 }
             }
@@ -274,12 +274,12 @@ struct TaskEditorView: View {
             if reminderEnabled && scheduler.isDenied {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Notifications are off, so this reminder will not fire. Enable them in Settings.")
-                        .font(.footnote)
+                        .font(LunaTypography.font(.footnote))
                         .foregroundStyle(LunaTheme.secondary)
                     Button("Open Settings") {
                         openSystemSettings()
                     }
-                    .font(.footnote.weight(.semibold))
+                    .font(LunaTypography.font(.footnote, weight: .semibold))
                     .foregroundStyle(LunaTheme.highlight)
                 }
                 .padding(12)
@@ -318,7 +318,7 @@ struct TaskEditorView: View {
                 repeatKindControls
 
                 Text(repeatKind.footnote(repeatDays: repeatDays))
-                    .font(.footnote)
+                    .font(LunaTypography.font(.footnote))
                     .foregroundStyle(LunaTheme.secondary)
             }
         }
@@ -370,7 +370,7 @@ struct TaskEditorView: View {
                     }
                 } label: {
                     Text(shortWeekdaySymbol(weekday))
-                        .font(.caption.weight(.semibold))
+                        .font(LunaTypography.font(.caption, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                         .foregroundStyle(selected ? LunaTheme.background : LunaTheme.highlight)
@@ -388,7 +388,7 @@ struct TaskEditorView: View {
     private func editorField<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
-                .font(.caption.weight(.semibold))
+                .font(LunaTypography.font(.caption, weight: .semibold))
                 .tracking(1.2)
                 .foregroundStyle(LunaTheme.secondary)
             content()

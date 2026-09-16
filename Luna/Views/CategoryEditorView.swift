@@ -30,7 +30,7 @@ struct CategoryEditorView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("NAME")
-                            .font(.caption.weight(.semibold))
+                            .font(LunaTypography.font(.caption, weight: .semibold))
                             .tracking(1.2)
                             .foregroundStyle(LunaTheme.secondary)
                         TextField("Work, home, health…", text: $name)
@@ -48,12 +48,12 @@ struct CategoryEditorView: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text("COLOR")
-                            .font(.caption.weight(.semibold))
+                            .font(LunaTypography.font(.caption, weight: .semibold))
                             .tracking(1.2)
                             .foregroundStyle(LunaTheme.secondary)
 
                         Text("Optional. Leave unset if you just want a name.")
-                            .font(.footnote)
+                            .font(LunaTypography.font(.footnote))
                             .foregroundStyle(LunaTheme.secondary)
 
                         HStack(spacing: 12) {
@@ -99,7 +99,7 @@ struct CategoryEditorView: View {
                             showingDeleteConfirm = true
                         } label: {
                             Text("Delete category")
-                                .font(.headline)
+                                .font(LunaTypography.font(.headline))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
                                 .foregroundStyle(LunaTheme.highlight)

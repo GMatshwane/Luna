@@ -22,7 +22,7 @@ struct CalendarSheet: View {
                     dismiss()
                 } label: {
                     Text("Jump to today")
-                        .font(.headline)
+                        .font(LunaTypography.font(.headline, weight: .semibold))
                         .foregroundStyle(LunaTheme.background)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)

@@ -14,18 +14,18 @@ struct EmptyDayView: View {
                 .accessibilityHidden(true)
 
             Text(isToday ? "A quiet evening." : "Nothing planned for this day.")
-                .font(.system(.title3, design: .serif))
+                .font(LunaTypography.font(.title3))
                 .foregroundStyle(LunaTheme.highlight)
                 .multilineTextAlignment(.center)
 
             Text(isToday ? "Add a task when you’re ready." : "Set a reminder for this date.")
-                .font(.subheadline)
+                .font(LunaTypography.font(.subheadline))
                 .foregroundStyle(LunaTheme.secondary)
                 .multilineTextAlignment(.center)
 
             Button(action: onAdd) {
                 Text("Add a task")
-                    .font(.headline)
+                    .font(LunaTypography.font(.headline, weight: .semibold))
                     .foregroundStyle(LunaTheme.background)
                     .padding(.horizontal, 22)
                     .padding(.vertical, 12)

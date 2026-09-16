@@ -12,9 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 APP_SWIFT = [
     "LunaApp.swift",
     "Theme/LunaTheme.swift",
+    "Theme/LunaTypography.swift",
     "Calendar/CalendarDay.swift",
     "Calendar/TaskListOrdering.swift",
     "Calendar/RepeatPolicy.swift",
+    "Calendar/WeekdayAbbreviation.swift",
     "Scores/ScorePolicy.swift",
     "Settings/LunaSettings.swift",
     "Notifications/ReminderPolicy.swift",
@@ -44,6 +46,14 @@ TEST_SWIFT = [
     "CategoryPolicyTests.swift",
     "LunaThemeTests.swift",
     "LunaSettingsTests.swift",
+    "WeekdayAbbreviationTests.swift",
+    "LunaTypographyTests.swift",
+]
+APP_FONTS = [
+    "Fonts/Roboto-Regular.ttf",
+    "Fonts/Roboto-Medium.ttf",
+    "Fonts/Roboto-SemiBold.ttf",
+    "Fonts/OFL.txt",
 ]
 
 
@@ -213,6 +223,8 @@ def pbxproj() -> str:
         "projectRelease": uid("projectRelease"),
         "assets": uid("assets"),
         "assetsBuild": uid("assetsBuild"),
+        "fontsGroup": uid("fontsGroup"),
+        "infoPlist": uid("infoPlist"),
         "proxy": uid("proxy"),
         "dependency": uid("dependency"),
     }
@@ -227,6 +239,11 @@ def pbxproj() -> str:
     for path in TEST_SWIFT:
         test_file_ids[path] = uid("tfile:" + path)
         test_build_ids[path] = uid("tbuild:" + path)
+    font_file_ids = {}
+    font_build_ids = {}
+    for path in APP_FONTS:
+        font_file_ids[path] = uid("file:" + path)
+        font_build_ids[path] = uid("build:" + path)
 
     def children(paths, lookup):
         return "\n".join(f"\t\t\t\t{lookup[p]} /* {p.split('/')[-1]} */," for p in paths)
@@ -264,6 +281,11 @@ def pbxproj() -> str:
     build_files.append(
         f"\t\t{ids['assetsBuild']} /* Assets.xcassets in Resources */ = {{isa = PBXBuildFile; fileRef = {ids['assets']} /* Assets.xcassets */; }};"
     )
+    for path in APP_FONTS:
+        name = path.split("/")[-1]
+        build_files.append(
+            f"\t\t{font_build_ids[path]} /* {name} in Resources */ = {{isa = PBXBuildFile; fileRef = {font_file_ids[path]} /* {name} */; }};"
+        )
     for path in TEST_SWIFT:
         build_files.append(
             f"\t\t{test_build_ids[path]} /* {path} in Sources */ = {{isa = PBXBuildFile; fileRef = {test_file_ids[path]} /* {path} */; }};"
@@ -279,6 +301,15 @@ def pbxproj() -> str:
     file_refs.append(
         f"\t\t{ids['assets']} /* Assets.xcassets */ = {{isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = \"<group>\"; }};"
     )
+    file_refs.append(
+        f"\t\t{ids['infoPlist']} /* Info.plist */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = \"<group>\"; }};"
+    )
+    for path in APP_FONTS:
+        name = path.split("/")[-1]
+        file_type = "text" if name.endswith(".txt") else "file"
+        file_refs.append(
+            f"\t\t{font_file_ids[path]} /* {name} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = {name}; sourceTree = \"<group>\"; }};"
+        )
     for path in APP_SWIFT:
         name = path.split("/")[-1]
         file_refs.append(
@@ -306,7 +337,9 @@ def pbxproj() -> str:
     ] + [
         f"\t\t\t\t{group_id[name]} /* {name} */," for name in grouped
     ] + [
-        f"\t\t\t\t{ids['assets']} /* Assets.xcassets */,"
+        f"\t\t\t\t{ids['fontsGroup']} /* Fonts */,",
+        f"\t\t\t\t{ids['assets']} /* Assets.xcassets */,",
+        f"\t\t\t\t{ids['infoPlist']} /* Info.plist */,",
     ]
     groups.append(
         f"""\t\t{ids['appGroup']} /* Luna */ = {{
@@ -326,6 +359,16 @@ def pbxproj() -> str:
 {children(paths, file_ids)}
 			);
 			path = {name};
+			sourceTree = "<group>";
+		}};"""
+    )
+    groups.append(
+        f"""\t\t{ids['fontsGroup']} /* Fonts */ = {{
+			isa = PBXGroup;
+			children = (
+{children(APP_FONTS, font_file_ids)}
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		}};"""
     )
@@ -356,6 +399,9 @@ def pbxproj() -> str:
     )
     test_source_files = "\n".join(
         f"\t\t\t\t{test_build_ids[p]} /* {p} in Sources */," for p in TEST_SWIFT
+    )
+    font_resource_files = "\n".join(
+        f"\t\t\t\t{font_build_ids[p]} /* {p.split('/')[-1]} in Resources */," for p in APP_FONTS
     )
 
     project_debug = r"""
@@ -481,6 +527,7 @@ def pbxproj() -> str:
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Luna/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Luna;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -648,6 +695,7 @@ def pbxproj() -> str:
 			buildActionMask = 2147483647;
 			files = (
 				{ids['assetsBuild']} /* Assets.xcassets in Resources */,
+{font_resource_files}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};
@@ -880,7 +928,9 @@ def write_workspace() -> None:
 
 
 def main() -> None:
-    write_assets()
+    icon = ROOT / "Luna" / "Assets.xcassets" / "AppIcon.appiconset" / "AppIcon.png"
+    if not icon.is_file():
+        write_assets()
     text, ids = pbxproj()
     proj = ROOT / "Luna.xcodeproj"
     proj.mkdir(parents=True, exist_ok=True)
