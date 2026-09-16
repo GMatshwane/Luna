@@ -7,6 +7,7 @@ private struct EditorSession: Identifiable {
 }
 
 struct RootView: View {
+    @Environment(LunaSettings.self) private var settings
     @State private var selectedDate = Date()
     @State private var editorSession: EditorSession?
     @State private var showingCalendar = false
@@ -46,12 +47,15 @@ struct RootView: View {
                     task: session.task,
                     defaultDueDate: selectedDate
                 )
+                .preferredColorScheme(settings.appearance.preferredColorScheme)
             }
             .sheet(isPresented: $showingCalendar) {
                 CalendarSheet(selectedDate: $selectedDate)
+                    .preferredColorScheme(settings.appearance.preferredColorScheme)
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+                    .preferredColorScheme(settings.appearance.preferredColorScheme)
             }
         }
     }

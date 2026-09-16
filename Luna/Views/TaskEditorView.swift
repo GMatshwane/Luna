@@ -86,7 +86,6 @@ struct TaskEditorView: View {
                         .datePickerStyle(.compact)
                         .labelsHidden()
                         .tint(LunaTheme.highlight)
-                        .colorScheme(.dark)
                     }
 
                     editorField(title: "Points") {
@@ -155,7 +154,6 @@ struct TaskEditorView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     private var orderedCategories: [Category] {
@@ -265,7 +263,6 @@ struct TaskEditorView: View {
                 )
                 .labelsHidden()
                 .tint(LunaTheme.highlight)
-                .colorScheme(.dark)
 
                 if reminderIsPast {
                     Text("This time is in the past, so Luna will not send an alert.")

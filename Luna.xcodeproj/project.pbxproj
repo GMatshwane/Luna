@@ -38,6 +38,8 @@
 		6A7773144600022CFCE3CB18 /* RepeatPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */; };
 		75D62EB88D59EEC4E582C528 /* ScorePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */; };
 		768BC0A90486B63089BB3D32 /* CategoryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F065A740009D49AD30164BC /* CategoryPolicyTests.swift */; };
+		A1E376B927C793AB3DF4E8E8 /* LunaThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43430D23711BEDEC06A79060 /* LunaThemeTests.swift */; };
+		50DD221D373CCF47D49D4BA7 /* LunaSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9B96C681D1E767C20D1E29 /* LunaSettingsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +86,8 @@
 		490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatPolicyTests.swift; sourceTree = "<group>"; };
 		2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePolicyTests.swift; sourceTree = "<group>"; };
 		2F065A740009D49AD30164BC /* CategoryPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPolicyTests.swift; sourceTree = "<group>"; };
+		43430D23711BEDEC06A79060 /* LunaThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaThemeTests.swift; sourceTree = "<group>"; };
+		CB9B96C681D1E767C20D1E29 /* LunaSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LunaSettingsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +230,8 @@
 				490F6FE04A7EBAF32CE8A74B /* RepeatPolicyTests.swift */,
 				2FC90EF852B8FD7071BE1AD2 /* ScorePolicyTests.swift */,
 				2F065A740009D49AD30164BC /* CategoryPolicyTests.swift */,
+				43430D23711BEDEC06A79060 /* LunaThemeTests.swift */,
+				CB9B96C681D1E767C20D1E29 /* LunaSettingsTests.swift */,
 			);
 			path = LunaTests;
 			sourceTree = "<group>";
@@ -368,6 +374,8 @@
 				6A7773144600022CFCE3CB18 /* RepeatPolicyTests.swift in Sources */,
 				75D62EB88D59EEC4E582C528 /* ScorePolicyTests.swift in Sources */,
 				768BC0A90486B63089BB3D32 /* CategoryPolicyTests.swift in Sources */,
+				A1E376B927C793AB3DF4E8E8 /* LunaThemeTests.swift in Sources */,
+				50DD221D373CCF47D49D4BA7 /* LunaSettingsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,7 +528,6 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -554,7 +561,6 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

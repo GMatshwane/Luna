@@ -140,7 +140,6 @@ struct CategoryEditorView: View {
                 Text("Tasks stay on the day. They become uncategorized.")
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     private func save() {

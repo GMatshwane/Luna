@@ -22,6 +22,7 @@ struct LunaApp: App {
                 .environment(settings)
                 .modelContainer(container)
                 .lunaScreen()
+                .preferredColorScheme(settings.appearance.preferredColorScheme)
                 .task {
                     await scheduler.refreshStatus()
                 }
