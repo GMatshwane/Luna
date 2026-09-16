@@ -18,7 +18,7 @@ v1 is single-device, local-only, dark-only.
 - Add, edit, complete, and delete tasks for today and any other calendar day.
 - Query and display tasks for a selected local calendar day.
 - Schedule and cancel per-task local notifications.
-- Optional **every N days** repeat (N ≥ 1) that spawns the next occurrence on complete.
+- Optional **RecurrenceRule** repeat (every N days, weekdays, weekly, monthly, yearly) that spawns the next occurrence on complete.
 - Daily **Scores**: custom points per task, a daily point goal, and live progress on each day.
 - Optional **category** per task (user-defined name + optional color) so a day list can be scanned by kind of work.
 - Dark UI using the Luna five-blue palette.
@@ -28,7 +28,7 @@ v1 is single-device, local-only, dark-only.
 - Apple Reminders / EventKit / Calendar sync
 - CloudKit / iCloud / any network backend
 - Widgets, Siri, App Intents
-- Weekday-only / monthly / yearly / RRULE recurrence, priorities, multi-tags
+- RRULE parsing, priorities, multi-tags
 - Repeatable plans
 - Streaks, leaderboards, or cross-day score history
 - Light mode
@@ -55,7 +55,7 @@ ModelContainer   (authorize, schedule, cancel)
 | `Category` | User-defined name + optional color; one optional category per task | SwiftData |
 | `CategoryPolicy` | Name/color normalize, day-list grouping and filter | `TaskListOrdering` |
 | `CalendarDay` | Start-of-day, day range, combine day+time | Foundation `Calendar` |
-| `RepeatPolicy` | Every-N-days normalize, next due/reminder, spawn-on-complete | `CalendarDay` |
+| `RepeatPolicy` | `RecurrenceRule` normalize, next due/reminder, spawn-on-complete | `CalendarDay` |
 | `ScorePolicy` | Point/goal normalization and day-score aggregation | Foundation |
 | `LunaSettings` | Persists `dailyPointGoal` in UserDefaults | `ScorePolicy` |
 | `ReminderPolicy` | Pure rules: should a reminder fire; notification id + payload | Foundation |
@@ -86,7 +86,11 @@ SwiftData `@Model` class **`TaskItem`**:
 | `isCompleted` | `Bool` | Default `false` |
 | `createdAt` | `Date` | Set on insert |
 | `sortOrder` | `Int` | Tie-breaker after reminder time |
-| `repeatIntervalDays` | `Int?` | `nil` = does not repeat; otherwise N ≥ 1 calendar days |
+| `repeatIntervalDays` | `Int?` | Every-N-days interval (`1...365`); unused for other kinds |
+| `repeatKindRaw` | `String?` | `everyNDays` / `weekdays` / `weekly` / `monthly` / `yearly`; `nil` + interval is legacy every-N-days |
+| `repeatWeekdaysMask` | `Int` | Bits 1…7 = Calendar weekday numbers for `weekdays` |
+| `repeatMonthDay` | `Int?` | Intended day of month (1…31) for monthly/yearly |
+| `repeatMonth` | `Int?` | Intended month (1…12) for yearly |
 | `points` | `Int` | Default **1**, minimum 1 (clamped by `ScorePolicy`) |
 | `category` | `Category?` | Optional; **one** category per task (not multi-tags) |
 
@@ -101,7 +105,7 @@ SwiftData `@Model` class **`Category`**:
 | `sortOrder` | `Int` | Creation order |
 | `tasks` | `[TaskItem]` | Inverse of `TaskItem.category`; delete **nullifies** (tasks become uncategorized) |
 
-`RepeatPolicy.normalizedInterval` treats `nil`, 0, and negatives as “no repeat”, and clamps N into `1...365`.
+`TaskItem.recurrence` maps those fields to `RecurrenceRule`. `RepeatPolicy.normalizedInterval` still treats `nil`, 0, and negatives as “no repeat”, and clamps N into `1...365`. Empty weekday sets do not repeat.
 
 ### Scores
 
@@ -121,29 +125,41 @@ bar     = min(1, earned / dailyPointGoal)
 
 Repeating tasks copy `points` and `category` onto the next occurrence, same as title and notes. No streaks in this version. The daily score stays a **single day total** (not split by category).
 
-### Repeats (every N days)
+### Repeats (`RecurrenceRule`)
 
 Repeats are **optional per task**. Completing a repeating task does **not** move it; the completed copy stays on that day (muted + strikethrough). Luna then inserts a **new incomplete** `TaskItem` (new `id`) for the next occurrence.
 
-On complete (transition incomplete → completed), if `repeatIntervalDays` is N ≥ 1:
+`RecurrenceRule` cases (reusable later for multi-task plans; no RRULE parsing):
+
+| Kind | Next due |
+|---|---|
+| `everyNDays(N)` | N calendar days later (`N` in 1…365) |
+| `weekdays(set)` | Next day whose Calendar weekday is in the set (Mon–Fri, weekends, or custom) |
+| `weekly` | Same weekday, 7 calendar days later |
+| `monthly(dayOfMonth)` | Next month on `dayOfMonth`, **clamped to the last day** of that month |
+| `yearly(month, day)` | Next year on that month/day, clamped to the last valid day (leap day → Feb 28) |
+
+Monthly and yearly store the *intended* day (and month) on the spawned copy, so 31 January → 28 February still carries `dayOfMonth = 31` and the following occurrence is 31 March.
 
 ```
-nextDue      = startOfDay(dueDate) + N calendar days
-nextReminder = reminderAt == nil ? nil : reminderAt + N calendar days
+nextDue      = RepeatPolicy.nextOccurrence(dueDate, rule)
+nextReminder = reminderAt == nil ? nil : Calendar.date(byAdding: .day, value: dayDelta, to: reminderAt)
 ```
 
-The next row copies `title`, `notes`, `points`, `category`, and `repeatIntervalDays`. `sortOrder` is the next value on that future day. `reminderAt` uses `Calendar.date(byAdding: .day)` so clock time is preserved across DST.
+`dayDelta` is the calendar-day difference between the old and new start-of-day due dates so clock time is preserved across DST.
+
+The next row copies `title`, `notes`, `points`, `category`, and the same `RecurrenceRule`. `sortOrder` is the next value on that future day.
 
 Then:
 
 1. Cancel the completed occurrence’s notification (same as any complete).
 2. Schedule the new occurrence if its `reminderAt` is in the future and the task is incomplete.
 
-Editing `repeatIntervalDays` on an **incomplete** task only changes that instance; it is used the next time *that* instance is completed. Past completed copies are not rewritten.
+Editing the repeat rule on an **incomplete** task only changes that instance; it is used the next time *that* instance is completed. Past completed copies are not rewritten.
 
-Non-repeating tasks (`repeatIntervalDays == nil`) are unchanged.
+Non-repeating tasks (`recurrence == nil`) are unchanged.
 
-Uncompleting a repeating task does not delete an already-spawned next occurrence. Completing the same instance again will not create a second next row if an incomplete copy with the same title, interval, and next due day already exists.
+Uncompleting a repeating task does not delete an already-spawned next occurrence. Completing the same instance again will not create a second next row if an incomplete copy with the same title, rule, and next due day already exists.
 
 ### Day query
 
@@ -207,7 +223,7 @@ One primary navigation stack. Today and the day browser share the same list UI; 
 - Notes (optional, multiline)
 - Due date (date picker)
 - Reminder toggle; when on, hour-and-minute picker
-- Repeat toggle; when on, stepper for every N days (N ≥ 1)
+- Repeat toggle; when on, a labeled type picker (Every N days, Specific weekdays, Weekly, Monthly, Yearly). Every N days keeps the stepper; weekdays offer Monday–Friday, weekends, or a custom set.
 - Points stepper (default 1, minimum 1)
 - Category picker: None, existing user-defined categories, New category (name + optional color)
 - Save / Cancel
@@ -285,7 +301,7 @@ Completed rows: secondary color, reduced opacity, strikethrough title.
 ## 8. Behaviors (acceptance)
 
 - Completing cancels the notification; the item stays on that day until deleted.
-- Completing a repeating task also creates the next incomplete occurrence N local days later, with reminder shifted by the same offset and **points and category copied**.
+- Completing a repeating task also creates the next incomplete occurrence from `RecurrenceRule`, with reminder shifted by `Calendar.date(byAdding: .day)` and **points, category, and rule copied**.
 - Completing/uncompleting updates that day’s score (sum of completed task points).
 - Daily point goal is edited in Settings and shared across days. The score is **not split by category**.
 - No `reminderAt` → still listed, no alert.
@@ -344,7 +360,7 @@ XCTest (logic only; no UI tests in v1):
 - `CalendarDay` start-of-day, exclusive end, combine day+time
 - `TaskListOrdering` timed-before-untimed
 - `ReminderPolicy` skip nil / completed / past; schedule future incomplete; identifier + payload
-- `RepeatPolicy` N-day advance, reminder offset, spawn only on complete transition
+- `RepeatPolicy` / `RecurrenceRule` N-day, weekday, weekly, monthly (month-end clamp), yearly, reminder offset, spawn only on complete transition
 - `ScorePolicy` defaults (1 point, goal 10), completed-only sum, overflow label with capped bar
 - `CategoryPolicy` name/color normalize, section named categories then Uncategorized, filter All / identified / uncategorized
 
@@ -359,6 +375,6 @@ Open `Luna.xcodeproj` on a Mac to build and run.
 3. Completed tasks keep sort position; they are not bucketed to the bottom.
 4. Permission is requested on first reminder enable, not at launch.
 5. No EventKit, no CloudKit, no third-party packages.
-6. Repeats are every-N-days only; next occurrence is created on complete, not at save.
+6. Repeats use `RecurrenceRule` (every N days, weekdays, weekly, monthly, yearly). Next occurrence is created on complete, not at save. No RRULE parsing.
 7. Day score is a live sum of completed task points; the daily goal is a single UserDefaults setting, not per-day history. No streaks. Score is a single day total, not split by category.
-8. One optional category per task. Categories are user-defined (name + optional color), assigned in the task editor, copied onto every-N-days spawned occurrences, and used to section/filter the day list including Uncategorized.
+8. One optional category per task. Categories are user-defined (name + optional color), assigned in the task editor, copied onto spawned occurrences, and used to section/filter the day list including Uncategorized.

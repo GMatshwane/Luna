@@ -12,6 +12,10 @@ final class TaskItem {
     var createdAt: Date
     var sortOrder: Int
     var repeatIntervalDays: Int? = nil
+    var repeatKindRaw: String? = nil
+    var repeatWeekdaysMask: Int = 0
+    var repeatMonthDay: Int? = nil
+    var repeatMonth: Int? = nil
     var points: Int = 1
     var category: Category? = nil
 
@@ -25,6 +29,7 @@ final class TaskItem {
         createdAt: Date = .now,
         sortOrder: Int = 0,
         repeatIntervalDays: Int? = nil,
+        recurrence: RecurrenceRule? = nil,
         points: Int = ScorePolicy.defaultPoints,
         category: Category? = nil
     ) {
@@ -36,9 +41,24 @@ final class TaskItem {
         self.isCompleted = isCompleted
         self.createdAt = createdAt
         self.sortOrder = sortOrder
-        self.repeatIntervalDays = RepeatPolicy.normalizedInterval(repeatIntervalDays)
         self.points = ScorePolicy.normalizedPoints(points)
         self.category = category
+        apply(RepeatPolicy.normalized(recurrence) ?? RepeatPolicy.normalized(.everyNDays(repeatIntervalDays ?? 0)))
+    }
+
+    var recurrence: RecurrenceRule? {
+        get { RepeatPolicy.rule(fromStored: storedRepeatFields) }
+        set { apply(RepeatPolicy.normalized(newValue)) }
+    }
+
+    var storedRepeatFields: RepeatPolicy.StoredFields {
+        RepeatPolicy.StoredFields(
+            kindRaw: repeatKindRaw,
+            intervalDays: repeatIntervalDays,
+            weekdaysMask: repeatWeekdaysMask,
+            monthDay: repeatMonthDay,
+            month: repeatMonth
+        )
     }
 
     var sortKey: TaskSortKey {
@@ -52,5 +72,14 @@ final class TaskItem {
 
     static func normalizedTitle(_ title: String) -> String {
         title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func apply(_ rule: RecurrenceRule?) {
+        let fields = RepeatPolicy.storedFields(from: rule)
+        repeatKindRaw = fields.kindRaw
+        repeatIntervalDays = fields.intervalDays
+        repeatWeekdaysMask = fields.weekdaysMask
+        repeatMonthDay = fields.monthDay
+        repeatMonth = fields.month
     }
 }
